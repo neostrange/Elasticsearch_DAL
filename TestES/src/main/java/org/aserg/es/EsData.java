@@ -190,7 +190,7 @@ public class EsData {
 
 	}
 	public static void main(String[] args){
-		Test t=new Test();
+		EsData t=new EsData();
 		t.initConnection();
 		t.initElasticSearchConnection();
 		t.getData();
