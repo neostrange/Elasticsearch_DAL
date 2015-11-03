@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.aserg.model.Download;
 import org.aserg.model.VirusTotal;
-import org.aserg.model.VirusTotalScan;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -28,7 +27,7 @@ import com.maxmind.geoip.LookupService;
 
 public class EsData {
 	private static final String driver = "org.sqlite.JDBC";
-	private static final String url = "jdbc:sqlite:/D:/data/logsql62_2.sqlite";
+	private static final String url = "jdbc:sqlite:/C:/Users/TI/Downloads/logsql62_2.sqlite";
 
 	BulkRequestBuilder bulkRequest;
 	private Connection con = null;
@@ -50,12 +49,9 @@ public class EsData {
 
 	public void initElasticSearchConnection() {
 		if (transportClient == null) {
-			Settings settings = ImmutableSettings.settingsBuilder()
-					.put("cluster.name", "elasticsearch").build();
+			Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").build();
 			transportClient = new TransportClient(settings);
-			transportClient = transportClient
-					.addTransportAddress(new InetSocketTransportAddress(
-							"localhost", 9300));
+			transportClient = transportClient.addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
 
 			// CreateIndexRequestBuilder createIndexRequestBuilder =
 			// transportClient.admin().indices().prepareCreate("connection");
@@ -67,8 +63,7 @@ public class EsData {
 		try {
 
 			String dir = "D:/GeoIP.dat";
-			LookupService cl = new LookupService(dir,
-					LookupService.GEOIP_MEMORY_CACHE);
+			LookupService cl = new LookupService(dir, LookupService.GEOIP_MEMORY_CACHE);
 			remote_country = cl.getCountry(remote_host).getName();
 
 		} catch (IOException e) {
@@ -79,26 +74,20 @@ public class EsData {
 
 	public void getData() {
 		try {
-			System.out.println("OKKKKK");
 			Statement stmt = con.createStatement();
-			System.out.println("OKKKKKKKKK");
-			ResultSet rs = stmt
-					.executeQuery(" select connections.connection,connection_type,connection_transport,connection_protocol, "
+			ResultSet rs = stmt.executeQuery(
+					" select connections.connection,connection_type,connection_transport,connection_protocol, "
 							+ " connection_datetime,connection_root,connection_parent,local_host,local_port,remote_host, "
 							+ " remote_port,download_url,virustotal_md5_hash,virustotalscan_scanner,virustotalscan_result "
-							+ " from connections "
-							+ " inner join downloads "
-							+ " on downloads.connection=connections.connection "
-							+ " left join virustotals "
+							+ " from connections " + " inner join downloads "
+							+ " on downloads.connection=connections.connection " + " left join virustotals "
 							+ " on virustotals.virustotal_md5_hash=downloads.download_md5_hash "
 							+ " inner join virustotalscans "
 							+ " on virustotalscans.virustotal=virustotals.virustotal ");
 			int count = 1;
-			System.out.println("OKKK");
 			String hash_cmp = rs.getString("virustotal_md5_hash");
-			Map vtc = new HashMap();
+			HashMap<String, String> vtc = new HashMap<String, String>();
 			bulkRequest = transportClient.prepareBulk();
-            System.out.println("OKKKKKKKKK");
 			while (rs.next()) {
 				String conn = rs.getString("connection");
 				String type = rs.getString("connection_type");
@@ -114,13 +103,13 @@ public class EsData {
 				String remotecountry = getCountries(rs.getString("remote_host"));
 				String downurl = rs.getString("download_url");
 				String hash = rs.getString("virustotal_md5_hash");
-				for(;hash_cmp.equals(hash) == true;rs.next()){
-					vtc.put(rs.getString("virustotalscan_scanner"), rs.getString("virustotalscan_result") );
+				for (; hash_cmp.equals(hash) == true;) {
+					vtc.put(rs.getString("virustotalscan_scanner"), rs.getString("virustotalscan_result"));
 					hash_cmp = rs.getString("virustotal_md5_hash");
+					rs.next();
 				}
-				
-				addData(conn, type, transport, protocol, datetime, root,
-						parent, host, port, remotehost, remoteport,
+
+				addData(conn, type, transport, protocol, datetime, root, parent, host, port, remotehost, remoteport,
 						remotecountry, downurl, hash, vtc);
 				System.out.println("Count >>:" + count);
 				count++;
@@ -139,10 +128,9 @@ public class EsData {
 		}
 	}
 
-	public void addData(String conn, String type, String transport,
-			String protocol, String datetime, String root, String parent,
-			String host, String port, String remotehost, String remoteport,
-			String country, String downurl, String hash, Map vtc)throws IOException {
+	public void addData(String conn, String type, String transport, String protocol, String datetime, String root,
+			String parent, String host, String port, String remotehost, String remoteport, String country,
+			String downurl, String hash, HashMap<String, String> vtc) throws IOException {
 		org.aserg.model.Connection c = new org.aserg.model.Connection();
 		c.setConnection(conn);
 		c.setConnection_type(type);
@@ -156,49 +144,30 @@ public class EsData {
 		c.setRemote_host(remotehost);
 		c.setRemote_port(remoteport);
 		c.setRemote_country(country);
-		//c.setDownload_url(downurl);
-		//c.setVirustotal_md5_hash(hash);
-		
-		//c.getDownload().setDownload_url(downurl);   
+		// c.setDownload_url(downurl);
+		// c.setVirustotal_md5_hash(hash);
+
+		// c.getDownload().setDownload_url(downurl);
 		Download download = new Download();
 		download.setDownload_url(downurl);
 		c.setDownload(download);
-		//Download d=new Download();
-		
-		VirusTotal vtr=new VirusTotal();
+
+		VirusTotal vtr = new VirusTotal();
 		download.setVtr(vtr);
 		vtr.setVirustotal_md5_hash(hash);
-		c.setVtr(vtr);
-		//VirusTotal vrtl = new VirusTotal();
-		//vrtl.setVirustotal_md5_hash(hash);
-		//c.setVirustotal(vrtl);
-		
-		List<String> scans = new ArrayList<String>();
-		scans.add(scanner);
-		
-		List<String> res = new ArrayList<String>();
-		res.add(result);
-		
-		VirusTotalScan scan=new VirusTotalScan();
-		
-		//VirusTotalScan scan = new VirusTotalScan();
-		scan.setVirustotalscan_scanner(scans);
-		scan.setVirustotalscan_result(res);
-		vtr.setVts(scan);
-		//c.setVirustotalscan(scan);
-		
+		vtr.setVtResults((HashMap<String, String>) vtc);
+
 		IndexRequest indexRequest = new IndexRequest("logsql98", "connections");
 		indexRequest.source(new Gson().toJson(c));
-		IndexResponse response = transportClient.index(indexRequest)
-				.actionGet();
+		IndexResponse response = transportClient.index(indexRequest).actionGet();
 
 	}
-	public static void main(String[] args){
-		EsData t=new EsData();
+
+	public static void main(String[] args) {
+		EsData t = new EsData();
 		System.out.println();
 		t.initConnection();
 		t.initElasticSearchConnection();
 		t.getData();
 	}
 }
-

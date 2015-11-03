@@ -101,11 +101,5 @@ private VirusTotal virustotal;
 	public void setVirustotal(VirusTotal virustotal) {
 		this.virustotal = virustotal;
 	}
-	public VirusTotalScan getVirustotalscan() {
-		return virustotalscan;
-	}
-	public void setVirustotalscan(VirusTotalScan virustotalscan) {
-		this.virustotalscan = virustotalscan;
-	}
 	
 }
