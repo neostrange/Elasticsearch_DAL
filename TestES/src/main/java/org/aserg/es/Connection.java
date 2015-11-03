@@ -1,6 +1,6 @@
 package org.aserg.es;
 
-public class Connection extends Download {
+public class Connection {
 private Download download;
 private VirusTotal virustotal;
 private VirusTotalScan virustotalscan;

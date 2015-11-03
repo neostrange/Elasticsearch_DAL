@@ -118,7 +118,7 @@ public class EsData {
 				
 				addData(conn, type, transport, protocol, datetime, root,
 						parent, host, port, remotehost, remoteport,
-						remotecountry, downurl, hash, new Gson().toJson(vtc));
+						remotecountry, downurl, hash, vtc);
 				System.out.println("Count >>:" + count);
 				count++;
 			}
@@ -139,7 +139,7 @@ public class EsData {
 	public void addData(String conn, String type, String transport,
 			String protocol, String datetime, String root, String parent,
 			String host, String port, String remotehost, String remoteport,
-			String country, String downurl, String hash, String vtc)throws IOException {
+			String country, String downurl, String hash, Map vtc)throws IOException {
 		org.aserg.es.Connection c = new org.aserg.es.Connection();
 		c.setConnection(conn);
 		c.setConnection_type(type);
