@@ -52,9 +52,6 @@ public class EsData {
 			Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "elasticsearch").build();
 			transportClient = new TransportClient(settings);
 			transportClient = transportClient.addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
-
-			// CreateIndexRequestBuilder createIndexRequestBuilder =
-			// transportClient.admin().indices().prepareCreate("connection");
 		}
 	}
 
@@ -103,7 +100,7 @@ public class EsData {
 				String remotecountry = getCountries(rs.getString("remote_host"));
 				String downurl = rs.getString("download_url");
 				String hash = rs.getString("virustotal_md5_hash");
-				for (; hash_cmp.equals(hash) == true;) {
+				while (hash_cmp.equals(hash) == true && rs.next()) {
 					vtc.put(rs.getString("virustotalscan_scanner"), rs.getString("virustotalscan_result"));
 					hash_cmp = rs.getString("virustotal_md5_hash");
 					rs.next();
@@ -111,8 +108,7 @@ public class EsData {
 
 				addData(conn, type, transport, protocol, datetime, root, parent, host, port, remotehost, remoteport,
 						remotecountry, downurl, hash, vtc);
-				System.out.println("Count >>:" + count);
-				count++;
+				System.out.println(count++);
 			}
 			if (bulkRequest.numberOfActions() > 0) {
 				bulkRequest.execute();
@@ -152,10 +148,10 @@ public class EsData {
 		download.setDownload_url(downurl);
 		c.setDownload(download);
 
-		VirusTotal vtr = new VirusTotal();
-		download.setVtr(vtr);
-		vtr.setVirustotal_md5_hash(hash);
-		vtr.setVtResults((HashMap<String, String>) vtc);
+		VirusTotal vtResult = new VirusTotal();
+		download.setVtr(vtResult);
+		vtResult.setVirustotal_md5_hash(hash);
+		vtResult.setVtResults((HashMap<String, String>) vtc);
 
 		IndexRequest indexRequest = new IndexRequest("logsql98", "connections");
 		indexRequest.source(new Gson().toJson(c));
