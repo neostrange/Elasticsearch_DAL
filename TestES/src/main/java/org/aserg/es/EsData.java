@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
@@ -18,6 +20,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.maxmind.geoip.LookupService;
 
 public class EsData {
@@ -89,7 +92,8 @@ public class EsData {
 							+ " on virustotalscans.virustotal=virustotals.virustotal ");
 			int count = 1;
 			System.out.println("OKKK");
-			// String hash = rs.getString("virustotal_md5_hash");
+			String hash_cmp = rs.getString("virustotal_md5_hash");
+			Map vtc = new HashMap();
 			bulkRequest = transportClient.prepareBulk();
             System.out.println("OKKKKKKKKK");
 			while (rs.next()) {
@@ -107,11 +111,14 @@ public class EsData {
 				String remotecountry = getCountries(rs.getString("remote_host"));
 				String downurl = rs.getString("download_url");
 				String hash = rs.getString("virustotal_md5_hash");
-				String scanner = rs.getString("virustotalscan_scanner");
-				String result = rs.getString("virustotalscan_result");
+				for(;hash_cmp.equals(hash) == true;rs.next()){
+					vtc.put(rs.getString("virustotalscan_scanner"), rs.getString("virustotalscan_result") );
+					hash_cmp = rs.getString("virustotal_md5_hash");
+				}
+				
 				addData(conn, type, transport, protocol, datetime, root,
 						parent, host, port, remotehost, remoteport,
-						remotecountry, downurl, hash, scanner, result);
+						remotecountry, downurl, hash, new Gson().toJson(vtc));
 				System.out.println("Count >>:" + count);
 				count++;
 			}
@@ -132,8 +139,7 @@ public class EsData {
 	public void addData(String conn, String type, String transport,
 			String protocol, String datetime, String root, String parent,
 			String host, String port, String remotehost, String remoteport,
-			String country, String downurl, String hash, String scanner,
-			String result)throws IOException {
+			String country, String downurl, String hash, String vtc)throws IOException {
 		org.aserg.es.Connection c = new org.aserg.es.Connection();
 		c.setConnection(conn);
 		c.setConnection_type(type);
