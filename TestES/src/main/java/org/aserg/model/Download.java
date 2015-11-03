@@ -2,13 +2,13 @@ package org.aserg.model;
 
 public class Download{
 	String download_url;
-    public VirusTotal vtr;
-	public VirusTotal getVtr() {
-		return vtr;
+    public VirusTotal vtResult;
+	public VirusTotal getVtResult() {
+		return vtResult;
 	}
 
-	public void setVtr(VirusTotal vtr) {
-		this.vtr = vtr;
+	public void setVtResult(VirusTotal vtr) {
+		this.vtResult = vtr;
 	}
 
 	public String getDownload_url() {

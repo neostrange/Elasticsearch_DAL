@@ -1,9 +1,27 @@
 package org.aserg.model;
 
 public class Connection {
-private Download download;
-private VirusTotal virustotal;
-
+	
+	public Connection(Download download, String connection, String connection_type, String connection_transport,
+			String connection_protocol, String connection_datetime, String connection_root, String connection_parent,
+			String local_host, String local_port, String remote_host, String remote_port, String remote_country) {
+		super();
+		this.download = download;
+		this.connection = connection;
+		this.connection_type = connection_type;
+		this.connection_transport = connection_transport;
+		this.connection_protocol = connection_protocol;
+		this.connection_datetime = connection_datetime;
+		this.connection_root = connection_root;
+		this.connection_parent = connection_parent;
+		this.local_host = local_host;
+		this.local_port = local_port;
+		this.remote_host = remote_host;
+		this.remote_port = remote_port;
+		this.remote_country = remote_country;
+	}
+	
+	private Download download;
 	private String connection;
 	private String connection_type;
 	private String connection_transport;
@@ -95,11 +113,5 @@ private VirusTotal virustotal;
 	public void setRemote_country(String remote_country) {
 		this.remote_country = remote_country;
 	}
-	public VirusTotal getVirustotal() {
-		return virustotal;
-	}
-	public void setVirustotal(VirusTotal virustotal) {
-		this.virustotal = virustotal;
-	}
-	
+
 }

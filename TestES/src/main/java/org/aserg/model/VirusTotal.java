@@ -3,8 +3,7 @@ package org.aserg.model;
 import java.util.HashMap;
 
 public class VirusTotal {
-	public String virustotal_md5_hash;
-	// public VirusTotalScan vts;
+	private String virustotal_md5_hash;
 	private HashMap<String, String> vtResults;
 
 	public HashMap<String, String> getVtResults() {
