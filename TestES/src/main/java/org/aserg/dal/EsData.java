@@ -1,4 +1,4 @@
-package org.aserg.es;
+package org.aserg.dal;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.aserg.model.Download;
+import org.aserg.model.VirusTotal;
+import org.aserg.model.VirusTotalScan;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -140,7 +143,7 @@ public class EsData {
 			String protocol, String datetime, String root, String parent,
 			String host, String port, String remotehost, String remoteport,
 			String country, String downurl, String hash, Map vtc)throws IOException {
-		org.aserg.es.Connection c = new org.aserg.es.Connection();
+		org.aserg.model.Connection c = new org.aserg.model.Connection();
 		c.setConnection(conn);
 		c.setConnection_type(type);
 		c.setConnection_transport(transport);

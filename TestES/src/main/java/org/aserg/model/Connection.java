@@ -1,9 +1,9 @@
-package org.aserg.es;
+package org.aserg.model;
 
 public class Connection {
 private Download download;
 private VirusTotal virustotal;
-private VirusTotalScan virustotalscan;
+
 	private String connection;
 	private String connection_type;
 	private String connection_transport;

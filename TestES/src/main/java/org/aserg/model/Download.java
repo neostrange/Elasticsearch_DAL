@@ -1,4 +1,4 @@
-package org.aserg.es;
+package org.aserg.model;
 
 public class Download{
 	String download_url;

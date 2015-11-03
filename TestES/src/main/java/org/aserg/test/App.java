@@ -1,4 +1,4 @@
-package TestES.TestES;
+package org.aserg.test;
 
 /**
  * Hello world!

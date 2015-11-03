@@ -1,4 +1,4 @@
-package org.aserg.es;
+package org.aserg.model;
 
 import java.util.HashMap;
 

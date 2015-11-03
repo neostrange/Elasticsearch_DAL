@@ -1,4 +1,4 @@
-package TestES.TestES;
+package org.aserg.test;
 
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.get.GetResponse;

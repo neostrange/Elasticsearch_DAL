@@ -1,4 +1,4 @@
-package TestES.TestES;
+package org.aserg.test;
 
 public class movie {
 	
