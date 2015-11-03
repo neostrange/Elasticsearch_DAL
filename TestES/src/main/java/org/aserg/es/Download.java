@@ -1,6 +1,6 @@
 package org.aserg.es;
 
-public class Download extends VirusTotal {
+public class Download{
 	String download_url;
     public VirusTotal vtr;
 	public VirusTotal getVtr() {

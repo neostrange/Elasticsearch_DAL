@@ -2,7 +2,8 @@ package org.aserg.es;
 
 public class Connection extends Download {
 private Download download;
-	
+private VirusTotal virustotal;
+private VirusTotalScan virustotalscan;
 	private String connection;
 	private String connection_type;
 	private String connection_transport;
@@ -94,4 +95,17 @@ private Download download;
 	public void setRemote_country(String remote_country) {
 		this.remote_country = remote_country;
 	}
+	public VirusTotal getVirustotal() {
+		return virustotal;
+	}
+	public void setVirustotal(VirusTotal virustotal) {
+		this.virustotal = virustotal;
+	}
+	public VirusTotalScan getVirustotalscan() {
+		return virustotalscan;
+	}
+	public void setVirustotalscan(VirusTotalScan virustotalscan) {
+		this.virustotalscan = virustotalscan;
+	}
+	
 }

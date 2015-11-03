@@ -17,16 +17,12 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
-import testes.testes.Connections;
-import testes.testes.Download;
-import testes.testes.Test;
-
 import com.google.gson.Gson;
 import com.maxmind.geoip.LookupService;
 
 public class EsData {
 	private static final String driver = "org.sqlite.JDBC";
-	private static final String url = "jdbc:sqlite:src/main/java/Database/logsql62_2.sqlite";
+	private static final String url = "jdbc:sqlite:/D:/data/logsql62_2.sqlite";
 
 	BulkRequestBuilder bulkRequest;
 	private Connection con = null;
@@ -151,37 +147,36 @@ public class EsData {
 		c.setRemote_host(remotehost);
 		c.setRemote_port(remoteport);
 		c.setRemote_country(country);
-		c.setDownload_url(downurl);
-		c.setDownload_url(downurl);
-		c.setVirustotal_md5_hash(hash);
+		//c.setDownload_url(downurl);
+		//c.setVirustotal_md5_hash(hash);
 		
-		//c.getDownload().setDownload_url(downurl);
-		//Download download = new Download();
-		//download.setDownload_url(downurl);
-		//c.setDownload(download);
+		//c.getDownload().setDownload_url(downurl);   
+		Download download = new Download();
+		download.setDownload_url(downurl);
+		c.setDownload(download);
 		//Download d=new Download();
 		
-		//vrt.setVirustotal_md5_hash(hash);
-		//vrt.setVirusTotalscan();
-		//c.setDownload(d);
-		//c.getVirusTotal().setVirustotal_md5_hash(hash);
+		VirusTotal vtr=new VirusTotal();
+		download.setVtr(vtr);
+		vtr.setVirustotal_md5_hash(hash);
+		c.setVtr(vtr);
 		//VirusTotal vrtl = new VirusTotal();
 		//vrtl.setVirustotal_md5_hash(hash);
-		//c.setVirusTotal(vrtl);
+		//c.setVirustotal(vrtl);
 		
 		List<String> scans = new ArrayList<String>();
 		scans.add(scanner);
 		
 		List<String> res = new ArrayList<String>();
 		res.add(result);
-		c.setVirustotalscan_scanner(scans);
-		c.setVirustotalscan_result(res);
-		//c.getVirusTotalscan().setVirustotalscan_scanner(scans);
-		//c.getVirusTotalscan().setVirustotalscan_result(res);
+		
+		VirusTotalScan scan=new VirusTotalScan();
+		
 		//VirusTotalScan scan = new VirusTotalScan();
-		//scan.setVirustotalscan_scanner(scans);
-		//scan.setVirustotalscan_result(res);
-		//c.setVirusTotalscan(scan);
+		scan.setVirustotalscan_scanner(scans);
+		scan.setVirustotalscan_result(res);
+		vtr.setVts(scan);
+		//c.setVirustotalscan(scan);
 		
 		IndexRequest indexRequest = new IndexRequest("logsql98", "connections");
 		indexRequest.source(new Gson().toJson(c));
@@ -191,8 +186,10 @@ public class EsData {
 	}
 	public static void main(String[] args){
 		EsData t=new EsData();
+		System.out.println();
 		t.initConnection();
 		t.initElasticSearchConnection();
 		t.getData();
 	}
 }
+

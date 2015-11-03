@@ -1,6 +1,6 @@
 package org.aserg.es;
 
-public class VirusTotal extends VirusTotalScan{
+public class VirusTotal{
 public String virustotal_md5_hash;
 public VirusTotalScan vts;
 	
