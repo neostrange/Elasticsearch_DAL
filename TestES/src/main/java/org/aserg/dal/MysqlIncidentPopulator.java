@@ -3,20 +3,21 @@ package org.aserg.dal;
 import java.sql.ResultSet;
 
 import org.aserg.model.Incident;
+import org.aserg.utility.SqlUtility;
 
 public class MysqlIncidentPopulator implements IncidentPopulator {
 
-	private DbUtility dbUtility;
+	private SqlUtility dbUtility;
 	private ResultSet resultSet;
 	
 	public MysqlIncidentPopulator() {
 		// TODO Auto-generated constructor stub
 	}
-	public DbUtility getDbUtility() {
+	public SqlUtility getDbUtility() {
 		return dbUtility;
 	}
 
-	public void setDbUtility(DbUtility dbUtility) {
+	public void setDbUtility(SqlUtility dbUtility) {
 		this.dbUtility = dbUtility;
 	}
 

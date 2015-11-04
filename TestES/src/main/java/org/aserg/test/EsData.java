@@ -1,4 +1,4 @@
-package org.aserg.dal;
+package org.aserg.test;
 
 import java.io.IOException;
 import java.sql.Connection;
