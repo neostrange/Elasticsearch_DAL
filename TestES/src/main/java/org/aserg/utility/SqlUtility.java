@@ -4,19 +4,20 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.Properties;
 
 public class SqlUtility {
-	final static String BASE_PATH = System.getProperty("user.dir")+"/config/";
-	Properties p = new Properties();
+	final static String BASE_PATH = System.getProperty("user.dir")+"/config/Query.properties";
 	
 	public SqlUtility() {
 	}
 	
-	public Properties getproperty(String config){
+	public static Properties getproperty(){
 		BufferedReader br;
+		Properties p = new Properties();
 		try {
-			br = new BufferedReader(new FileReader(config));
+			br = new BufferedReader(new FileReader(BASE_PATH));
 			p.load(br);
 		} catch(FileNotFoundException e){
 			e.printStackTrace();
@@ -26,8 +27,12 @@ public class SqlUtility {
 		}
 		return p;	
 	}
+	
+	public ResultSet getResultSet(String Query){
+		return null;
+	}
 	public static void main (String args[]){
-		System.out.print(new SqlUtility().getproperty(BASE_PATH+"Query.properties").getProperty("MALWARE_INCIDENT_QUERY"));
+		System.out.print(SqlUtility.getproperty().getProperty("MALWARE_INCIDENT_QUERY"));
 	}
 				
 }
