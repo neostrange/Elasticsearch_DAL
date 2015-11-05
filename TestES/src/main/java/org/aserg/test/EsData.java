@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.aserg.model.Download;
-import org.aserg.model.VirusTotal;
+//import org.aserg.model.Download;
+//import org.aserg.model.VirusTotal;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -121,21 +121,21 @@ public class EsData {
 			String parent, String host, String port, String remotehost, String remoteport, String country,
 			String downurl, String hash, HashMap<String, String> vtc) throws IOException {
 
-		Download download = new Download();
-		download.setDownload_url(downurl);
-		VirusTotal vtResult = new VirusTotal();
-		vtResult.setVirustotal_md5_hash(hash);
-		vtResult.setVtResults((HashMap<String, String>) vtc);
-		download.setVtResult(vtResult);
-		
-		org.aserg.model.Connection c = new org.aserg.model.Connection(download, conn, type, transport, protocol,
-				datetime, root, parent, host, port, remotehost, remoteport, country);
+//		//Download download = new Download();
+//		download.setDownload_url(downurl);
+//		//VirusTotal vtResult = new VirusTotal();
+//		vtResult.setVirustotal_md5_hash(hash);
+//		vtResult.setVtResults((HashMap<String, String>) vtc);
+//		download.setVtResult(vtResult);
+//		
+//		org.aserg.model.Connection c = new org.aserg.model.Connection(download, conn, type, transport, protocol,
+//				datetime, root, parent, host, port, remotehost, remoteport, country);
 
 
 
-		IndexRequest indexRequest = new IndexRequest("logsql98", "connections");
-		indexRequest.source(new Gson().toJson(c));
-		IndexResponse response = transportClient.index(indexRequest).actionGet();
+//		IndexRequest indexRequest = new IndexRequest("logsql98", "connections");
+//		indexRequest.source(new Gson().toJson(c));
+//		IndexResponse response = transportClient.index(indexRequest).actionGet();
 
 	}
 
