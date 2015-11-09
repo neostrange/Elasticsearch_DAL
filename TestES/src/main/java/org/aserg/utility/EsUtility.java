@@ -13,6 +13,7 @@ import org.aserg.model.MssqlIncident;
 import org.aserg.model.MysqlIncident;
 import org.aserg.model.SipIncident;
 import org.aserg.model.SshIncident;
+import org.aserg.model.WebIncident;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -212,10 +213,10 @@ public class EsUtility {
 		closeBulkProcessor();
 	}
 
-	public static void pushWebData(List<NetworkLayerIncident> list, String index, String type)
+	public static void pushWebData(List<WebIncident> list, String index, String type)
 			throws InterruptedException {
 		initBulkProcessor();
-		for (NetworkLayerIncident i : list) {
+		for (WebIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));
 		}
 		closeBulkProcessor();
