@@ -1,7 +1,5 @@
 package org.aserg.model;
 
-import java.util.Date;
-
 /**
  * Singleton for representing the commands executed by attacker in
  * {@code SshIncident}.
@@ -19,9 +17,9 @@ public class Input {
 	/**
 	 * The datetime when the command was executed.
 	 */
-	private Date dateTime;
+	private String dateTime;
 
-	public Input(String command, boolean success, Date time) {
+	public Input(String command, boolean success, String time) {
 		super();
 		this.command = command;
 		this.success = success;
@@ -44,11 +42,11 @@ public class Input {
 		this.success = success;
 	}
 
-	public Date getDateTime() {
+	public String getDateTime() {
 		return dateTime;
 	}
 
-	public void setDateTime(Date dateTime) {
+	public void setDateTime(String dateTime) {
 		this.dateTime = dateTime;
 	}
 

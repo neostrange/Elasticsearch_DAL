@@ -40,6 +40,17 @@ public class SshIncident extends Incident {
 		this.malwareIncidents = malwareIncidents;
 		this.tool = tool;
 	}
+	
+	public SshIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
+			int remotePort, String transport, String country, List<Auth> authList, String endtime,
+			List<Input> inputList, String tool) {
+		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+		this.authList = authList;
+		this.endtime = endtime;
+		this.inputList = inputList;
+		this.malwareIncidents = null;
+		this.tool = tool;
+	}
 
 	public List<Auth> getAuthList() {
 		return authList;

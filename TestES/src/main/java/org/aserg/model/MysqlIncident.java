@@ -1,9 +1,7 @@
 package org.aserg.model;
 
-import java.util.Date;
 import java.util.List;
 
-import org.elasticsearch.common.joda.time.DateTime;
 
 /**
  * This class represents the {@code Incident} where the attacker exploited
