@@ -1,6 +1,5 @@
 package org.aserg.model;
 
-import java.util.Date;
 
 
 /**

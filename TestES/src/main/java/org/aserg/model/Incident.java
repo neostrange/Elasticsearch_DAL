@@ -19,7 +19,7 @@ public class Incident {
 	 */
 	private int localPort;
 	/**
-	 * The type of the service.
+	 * The type of service.
 	 */
 	private String protocol;
 	/**
@@ -48,7 +48,7 @@ public class Incident {
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
 		this.transport = transport;
-		this.country = country;
+		this.setCountry(country);
 	}
 
 	public String getDateTime() {
@@ -105,6 +105,14 @@ public class Incident {
 
 	public void setTransport(String transport) {
 		this.transport = transport;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
 	}
 
 }
