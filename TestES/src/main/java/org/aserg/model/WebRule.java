@@ -5,7 +5,7 @@ package org.aserg.model;
  * Singleton for describing the Modsecurity rule triggered by the
  * {@code WebIncident}.
  */
-public class WebRules {
+public class WebRule {
 
 	/**
 	 * Category of the triggered rule.
@@ -16,7 +16,7 @@ public class WebRules {
 	 */
 	private String ruleMessage;
 		
-	public WebRules(String ruleCategory, String ruleMessage) {
+	public WebRule(String ruleCategory, String ruleMessage) {
 		super();
 		this.ruleCategory = ruleCategory;
 		this.ruleMessage = ruleMessage;

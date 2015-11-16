@@ -1,9 +1,5 @@
 package org.aserg.model;
 
-import java.util.Date;
-import java.util.List;
-
-import org.elasticsearch.common.joda.time.DateTime;
 
 /**
  * This class represents the {@code Incident} that employs the VoIP Session
@@ -18,18 +14,18 @@ public class SipIncident extends Incident {
 	/**
 	 * List of SIP methods executed by the attacker.
 	 */
-	private List<String> sipMethods;
+	private String sipMethod;
 	/**
 	 * SIP user agent or tool used by the attacker.
 	 */
 	private String sipUserAgent;
 
 	public SipIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, String sipCallId, List<String> sipMethods,
+			int remotePort, String transport, String country, String sipCallId, String sipMethod,
 			String sipUserAgent) {
 		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
 		this.sipCallId = sipCallId;
-		this.sipMethods = sipMethods;
+		this.sipMethod = sipMethod;
 		this.sipUserAgent = sipUserAgent;
 	}
 
@@ -41,12 +37,12 @@ public class SipIncident extends Incident {
 		this.sipCallId = sipCallId;
 	}
 
-	public List<String> getSipMethods() {
-		return sipMethods;
+	public String getSipMethod() {
+		return sipMethod;
 	}
 
-	public void setSipMethods(List<String> sipMethods) {
-		this.sipMethods = sipMethods;
+	public void setSipMethod(String sipMethod) {
+		this.sipMethod = sipMethod;
 	}
 
 	public String getSipUserAgent() {

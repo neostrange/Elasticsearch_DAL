@@ -1,12 +1,16 @@
 package org.aserg.model;
 
-import java.util.Date;
 import java.util.List;
 
 /**
  * This class represents an SSH {@code Incident}.
  */
 public class SshIncident extends Incident {
+
+	/**
+	 * For referring to MalwareIncidents
+	 */
+	private String sessionId;
 
 	/**
 	 * The list of Authentication attempts made by the attacker.
@@ -21,24 +25,49 @@ public class SshIncident extends Incident {
 	 */
 	private List<Input> inputList;
 	/**
-	 * The list of {@code MalwareIncident}, in case the attacker downloaded any
-	 * malwares during SSH session.
-	 */
-	private List<MalwareIncident> malwareIncidents;
-	/**
 	 * The SSH tool used by the attacker.
 	 */
 	private String tool;
 
 	public SshIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
 			int remotePort, String transport, String country, List<Auth> authList, String endtime,
-			List<Input> inputList, List<MalwareIncident> malwareIncidents, String tool) {
+			List<Input> inputList, String tool) {
 		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
 		this.authList = authList;
 		this.endtime = endtime;
 		this.inputList = inputList;
-		this.malwareIncidents = malwareIncidents;
 		this.tool = tool;
+		this.sessionId = null;
+	}
+
+	// with sessionId
+	public SshIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
+			int remotePort, String transport, String country, List<Auth> authList, String endtime,
+			List<Input> inputList, String tool, String sessId) {
+		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+		this.authList = authList;
+		this.endtime = endtime;
+		this.inputList = inputList;
+		this.tool = tool;
+		this.sessionId = sessId;
+	}
+
+	public SshIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
+			int remotePort, String transport, String country, String endtime, String tool, String sessId) {
+		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+		this.authList = null;
+		this.endtime = endtime;
+		this.inputList = null;
+		this.tool = tool;
+		this.sessionId = sessId;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 
 	public List<Auth> getAuthList() {
@@ -63,14 +92,6 @@ public class SshIncident extends Incident {
 
 	public void setInputList(List<Input> inputList) {
 		this.inputList = inputList;
-	}
-
-	public List<MalwareIncident> getMalwareIncidents() {
-		return malwareIncidents;
-	}
-
-	public void setMalwareIncidents(List<MalwareIncident> malwareIncidents) {
-		this.malwareIncidents = malwareIncidents;
 	}
 
 	public String getTool() {

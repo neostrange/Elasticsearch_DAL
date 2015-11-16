@@ -1,6 +1,5 @@
 package org.aserg.model;
 
-import java.util.Date;
 
 /**
  * Singleton for representing an authentication attempt in {@code SshIncident}.
@@ -22,9 +21,9 @@ public class Auth {
 	/**
 	 * The datetime associated with the authentication attempt.
 	 */
-	private Date dateTime;
+	private String dateTime;
 
-	public Auth(String username, String password, boolean success, Date time) {
+	public Auth(String username, String password, boolean success, String time) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -56,11 +55,11 @@ public class Auth {
 		this.success = success;
 	}
 
-	public Date getDateTime() {
+	public String getDateTime() {
 		return dateTime;
 	}
 
-	public void setDateTime(Date dateTime) {
+	public void setDateTime(String dateTime) {
 		this.dateTime = dateTime;
 	}
 

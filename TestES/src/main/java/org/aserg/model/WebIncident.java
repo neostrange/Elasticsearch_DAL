@@ -7,22 +7,6 @@ import java.util.List;
  */
 public class WebIncident extends Incident {
 
-	public WebIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, int contentLength, String contentType, String httpMethod,
-			String pathParameter, String referer, List<WebRules> rulesList, int severityId, String severityStatus,
-			String userAgent) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
-		this.contentLength = contentLength;
-		this.contentType = contentType;
-		this.httpMethod = httpMethod;
-		this.pathParameter = pathParameter;
-		this.referer = referer;
-		this.rulesList = rulesList;
-		this.severityId = severityId;
-		this.severityStatus = severityStatus;
-		this.userAgent = userAgent;
-	}
-
 	/**
 	 * Length of content in request.
 	 */
@@ -46,7 +30,7 @@ public class WebIncident extends Incident {
 	/**
 	 * List of Modsecurity rules triggered.
 	 */
-	private List<WebRules> rulesList;
+	private List<WebRule> rulesList;
 	/**
 	 * Severity Id of the {@code Incident}.
 	 */
@@ -59,6 +43,22 @@ public class WebIncident extends Incident {
 	 * The user agent or tool used by the attacker.
 	 */
 	private String userAgent;
+
+	public WebIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
+			int remotePort, String transport, String country, int contentLength, String contentType, String httpMethod,
+			String pathParameter, String referer, List<WebRule> rulesList, int severityId, String severityStatus,
+			String userAgent) {
+		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+		this.contentLength = contentLength;
+		this.contentType = contentType;
+		this.httpMethod = httpMethod;
+		this.pathParameter = pathParameter;
+		this.referer = referer;
+		this.rulesList = rulesList;
+		this.severityId = severityId;
+		this.severityStatus = severityStatus;
+		this.userAgent = userAgent;
+	}
 
 	public int getContentLength() {
 		return contentLength;
@@ -100,11 +100,11 @@ public class WebIncident extends Incident {
 		this.referer = referer;
 	}
 
-	public List<WebRules> getRulesList() {
+	public List<WebRule> getRulesList() {
 		return rulesList;
 	}
 
-	public void setRulesList(List<WebRules> rulesList) {
+	public void setRulesList(List<WebRule> rulesList) {
 		this.rulesList = rulesList;
 	}
 

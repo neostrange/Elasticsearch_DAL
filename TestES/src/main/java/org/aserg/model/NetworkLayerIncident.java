@@ -1,8 +1,5 @@
 package org.aserg.model;
 
-import java.util.Date;
-
-import org.elasticsearch.common.joda.time.DateTime;
 
 /**
  * Network Layer {@code Incident} where snort alert is triggered. Contains cid
