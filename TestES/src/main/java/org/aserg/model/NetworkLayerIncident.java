@@ -8,11 +8,11 @@ package org.aserg.model;
 public class NetworkLayerIncident extends Incident {
 
 	/**
-	 * Id for referring to the full PCAP information from Snorby.
+	 * Id for referring to the full PCAP information from Snorby/Snort.
 	 */
 	private int cid;
 	/**
-	 * Id for referring to the Snort signature information.
+	 * Id for referring to the sensor on which the attack was received.
 	 */
 	private int sid;
 	/**
@@ -23,7 +23,26 @@ public class NetworkLayerIncident extends Incident {
 	 * Snort signature classification.
 	 */
 	private String signature_class;
-
+	/**
+	 * If ICMP event, then the type of ICMP, eg. Echo is type 8.
+	 */
+	private String icmpType;
+	
+	/**
+	 * 
+	 * @param dateTime
+	 * @param localHost
+	 * @param localPort
+	 * @param protocol
+	 * @param remoteHost
+	 * @param remotePort
+	 * @param transport
+	 * @param country
+	 * @param cid
+	 * @param sid
+	 * @param signature
+	 * @param signature_class
+	 */
 	
 	public NetworkLayerIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
 			int remotePort, String transport, String country, int cid, int sid, String signature,
@@ -33,6 +52,19 @@ public class NetworkLayerIncident extends Incident {
 		this.sid = sid;
 		this.signature = signature;
 		this.signature_class = signature_class;
+		this.icmpType = null;
+	}
+	
+	// with icmp
+	public NetworkLayerIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
+			int remotePort, String transport, String country, int cid, int sid, String signature,
+			String signature_class, String icmpType) {
+		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+		this.cid = cid;
+		this.sid = sid;
+		this.signature = signature;
+		this.signature_class = signature_class;
+		this.icmpType = icmpType;
 	}
 
 	public int getCid() {
