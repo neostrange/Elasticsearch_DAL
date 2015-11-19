@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.aserg.dal.NetworkLayerIncident;
+import org.aserg.model.NetworkLayerIncident;
 import org.aserg.model.MalwareIncident;
 import org.aserg.model.MssqlIncident;
 import org.aserg.model.MysqlIncident;
