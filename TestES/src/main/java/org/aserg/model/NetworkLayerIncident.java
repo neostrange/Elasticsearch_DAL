@@ -22,7 +22,7 @@ public class NetworkLayerIncident extends Incident {
 	/**
 	 * Snort signature classification.
 	 */
-	private String signature_class;
+	private String signatureClass;
 
 	
 	public NetworkLayerIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
@@ -32,7 +32,7 @@ public class NetworkLayerIncident extends Incident {
 		this.cid = cid;
 		this.sid = sid;
 		this.signature = signature;
-		this.signature_class = signature_class;
+		this.signatureClass = signature_class;
 	}
 
 	public int getCid() {
@@ -60,11 +60,11 @@ public class NetworkLayerIncident extends Incident {
 	}
 
 	public String getSignature_class() {
-		return signature_class;
+		return signatureClass;
 	}
 
 	public void setSignature_class(String signature_class) {
-		this.signature_class = signature_class;
+		this.signatureClass = signature_class;
 	}
 
 }
