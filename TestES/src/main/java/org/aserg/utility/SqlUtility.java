@@ -62,12 +62,12 @@ public class SqlUtility {
 	public static final String MSSQL_INCIDENT_QUERY = "select cmf.*, mssql_commands.mssql_command_status, "
 								+ "mssql_commands.mssql_command_cmd "
 							+ "from (select connections.connection, remote_host,local_port, connection_protocol,"
-							+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as datetime,"
+							+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime,"
 							+ "connection_transport,local_host,remote_port,"
 							+ "mssql_fingerprint_hostname,mssql_fingerprint_cltintname "
 						+ "from connections "
 						+ "inner join mssql_fingerprints on mssql_fingerprints.connection=connections.connection) as cmf "
-						+ " left join mssql_commands on mssql_commands.connection= cmf.connection";
+						+ "left join mssql_commands on mssql_commands.connection= cmf.connection";
 				
 	public static final String WEB_INCIDENT_QUERY = "SELECT events.event_id,a_timestamp,"
 			+ "INET_NTOA(a_client_ip) as client_ip,a_client_port,INET_NTOA(a_server_ip) as server_ip,a_server_port,"
@@ -181,7 +181,7 @@ public class SqlUtility {
 		try {
 			Statement stmt = con.createStatement();
 			if(query.contains("as order_id")){
-				rs = stmt.executeQuery(query+ " Where connection_datetime > '"+time+"' order by order_id asc");
+				rs = stmt.executeQuery(query+ " Where connection_datetime > '"+time+"'");
 				System.out.println(query + "Where connection_datetime > '"+time+"' order by order_id asc" );
 			}
 			else{
@@ -208,11 +208,6 @@ public class SqlUtility {
 			e.printStackTrace();
 		}
 		return p;	
-	}
-	
-	public static void main (String args[]){
-		System.out.println(SqlUtility.getproperty().getProperty("MALWARE_INCIDENT_QUERY"));
-		System.out.println(System.getProperty("os.name"));
 	}
 				
 }

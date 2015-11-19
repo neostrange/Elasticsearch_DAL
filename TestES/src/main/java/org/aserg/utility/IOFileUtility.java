@@ -32,19 +32,6 @@ public class IOFileUtility {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public static String getCountries(String remote_host) {
-		String remote_country = "";
-		try {
-
-			String dir = "E:/TI/GeoIP.dat";
-			LookupService cl = new LookupService(dir, LookupService.GEOIP_MEMORY_CACHE);
-			remote_country = cl.getCountry(remote_host).getName();
-
-		} catch (IOException e) {
-			System.out.println(e.toString());
-		}
-		return remote_country;
-	}
 	
 	/**
 	 * This Function will write the time in to the file on the bases
