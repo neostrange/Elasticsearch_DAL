@@ -3,10 +3,11 @@
  */
 package org.aserg.main;
 
-import java.sql.ResultSet;
+import java.util.List;
 
 import org.aserg.dal.MalwareIncidentPopulator;
-import org.aserg.utility.SqlUtility;
+import org.aserg.model.MalwareIncident;
+import org.aserg.utility.EsUtility;
 
 /**
  * @author Waseem
@@ -26,8 +27,14 @@ public class ArchivalAgent {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MALWARE_INCIDENT_QUERY,SqlUtility.dionaeaConnection);
-		new MalwareIncidentPopulator().populate(rs);
+		List<MalwareIncident> mp = new MalwareIncidentPopulator().populate();
+		try {
+			EsUtility.pushMalwareData(mp, "incidents", "malware_incidents");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 
 	}

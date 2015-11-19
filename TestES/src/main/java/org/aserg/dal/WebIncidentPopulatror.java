@@ -4,6 +4,7 @@
 package org.aserg.dal;
 
 import java.sql.ResultSet;
+import java.util.List;
 
 import org.aserg.model.Incident;
 import org.aserg.utility.SqlUtility;
@@ -46,6 +47,12 @@ public class WebIncidentPopulatror implements IncidentPopulator {
 
 	public void setResultSet(ResultSet resultSet) {
 		this.resultSet = resultSet;
+	}
+
+	@Override
+	public List<Incident> populate() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

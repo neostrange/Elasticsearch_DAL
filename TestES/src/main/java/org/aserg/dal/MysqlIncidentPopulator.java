@@ -1,6 +1,7 @@
 package org.aserg.dal;
 
 import java.sql.ResultSet;
+import java.util.List;
 
 import org.aserg.model.Incident;
 import org.aserg.utility.SqlUtility;
@@ -30,6 +31,11 @@ public class MysqlIncidentPopulator implements IncidentPopulator {
 	}
 
 	public Incident populate(ResultSet resultSet) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public List<Incident> populate() {
 		// TODO Auto-generated method stub
 		return null;
 	}

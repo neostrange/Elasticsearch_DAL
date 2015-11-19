@@ -16,6 +16,7 @@ import javax.naming.InitialContext;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 public class SqlUtility {
+	
 	public static final String NETWORK_LAYER_INCIDENT_QUERY  = "select INET_NTOA(iphdr.ip_src) as remote_host,"+
 			"tcphdr.tcp_dport as tcp_local_port,"+
 			"udphdr.udp_dport as udp_local_port,"+
@@ -86,22 +87,29 @@ public class SqlUtility {
 							+ "FROM sip_commands "
 							+ "INNER JOIN connections on (sip_commands.connection=connections.connection)";
 		    
-	public static final String MALWARE_INCIDENT_QUERY = "select remote_host,local_port, connection_protocol,"
-								+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as datetime,"
+	public static String MALWARE_INCIDENT_QUERY = "select downloads.download as order_id, remote_host,local_port, connection_protocol,"
+								+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime,"
 								+ "connection_transport,local_host,remote_port,download_url,download_md5_hash,"
+								+ "virustotal_permalink,"
 								+ "virustotalscan_scanner,virustotalscan_result "
 							+ "from connections "
 							+ "inner join downloads on downloads.connection=connections.connection "
 							+ "left join virustotals on virustotals.virustotal_md5_hash=downloads.download_md5_hash "
-							+ "left join virustotalscans on virustotalscans.virustotal=virustotals.virustotal";
-			    
+							+ "left join virustotalscans on virustotalscans.virustotal=virustotals.virustotal ";
+	
+	public static String MALWARE_INCIDENT_QUERY_COUNT =  "select count(connections.connection) as total,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime "
+			+ "from connections "
+			+ "inner join downloads on downloads.connection=connections.connection "
+			+ "left join virustotals on virustotals.virustotal_md5_hash=downloads.download_md5_hash "
+			+ "left join virustotalscans on virustotalscans.virustotal=virustotals.virustotal ";
+
 	final static String BASE_PATH = System.getProperty("user.dir")+"/config/Db.properties";
 	/**
 	 *  This variable will create a connection with Sqlite and mysql
 	 */
 	public static Connection dionaeaConnection = null;
 	public static Connection kippoConnection = null;
-	public static Connection WebConnection = null;
+	public static Connection webConnection = null;
 	
 	/**
 	 * Block will initialize the connection to the Sqlite Database
@@ -154,7 +162,7 @@ public class SqlUtility {
 		
 		// Getting Connection object
 		try {
-			WebConnection = mds.getConnection();
+			webConnection = mds.getConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -168,11 +176,18 @@ public class SqlUtility {
 	 * @param query
 	 * @return rs
 	 */
-	public static ResultSet getResultSet(String query, Connection con){
+	public static ResultSet getResultSet(String query, Connection con, String time){
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();
-			rs = stmt.executeQuery(query);
+			if(query.contains("as order_id")){
+				rs = stmt.executeQuery(query+ " Where connection_datetime > '"+time+"' order by order_id asc");
+				System.out.println(query + "Where connection_datetime > '"+time+"' order by order_id asc" );
+			}
+			else{
+				rs = stmt.executeQuery(query+ " Where connection_datetime > '"+time+"'");
+				System.out.println(query+ " Where connection_datetime > '"+time+"'");
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
