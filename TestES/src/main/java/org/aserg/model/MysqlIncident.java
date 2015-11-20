@@ -8,7 +8,6 @@ import java.util.List;
  * exposed vulnerabilities of the MySQL service.
  */
 public class MysqlIncident extends Incident {
-
 	/**
 	 * List of {@code MysqlCommand} which stores the list of MySQL commands
 	 * carried out by the attacker in an incident and the corresponding
@@ -16,9 +15,10 @@ public class MysqlIncident extends Incident {
 	 */
 	private List<MysqlCommand> mysqlCommands;
 
-	public MysqlIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, List<MysqlCommand> mysqlCommands) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+
+	public MysqlIncident(String dateTime, String srcIP, int srcPort, String service, String dstIP, int dstPort,
+			String protocol, Origin org, List<MysqlCommand> mysqlCommands) {
+		super(dateTime, srcIP, srcPort, service, dstIP, dstPort, protocol, org);
 		this.mysqlCommands = mysqlCommands;
 	}
 

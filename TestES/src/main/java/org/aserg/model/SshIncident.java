@@ -29,37 +29,15 @@ public class SshIncident extends Incident {
 	 */
 	private String tool;
 
-	public SshIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, List<Auth> authList, String endtime,
-			List<Input> inputList, String tool) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+	public SshIncident(String dateTime, String srcIP, int srcPort, String service, String dstIP, int dstPort,
+			String protocol, Origin org, String sessionId, List<Auth> authList, String endtime, List<Input> inputList,
+			String tool) {
+		super(dateTime, srcIP, srcPort, service, dstIP, dstPort, protocol, org);
+		this.sessionId = sessionId;
 		this.authList = authList;
 		this.endtime = endtime;
 		this.inputList = inputList;
 		this.tool = tool;
-		this.sessionId = null;
-	}
-
-	// with sessionId
-	public SshIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, List<Auth> authList, String endtime,
-			List<Input> inputList, String tool, String sessId) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
-		this.authList = authList;
-		this.endtime = endtime;
-		this.inputList = inputList;
-		this.tool = tool;
-		this.sessionId = sessId;
-	}
-
-	public SshIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, String endtime, String tool, String sessId) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
-		this.authList = null;
-		this.endtime = endtime;
-		this.inputList = null;
-		this.tool = tool;
-		this.sessionId = sessId;
 	}
 
 	public String getSessionId() {

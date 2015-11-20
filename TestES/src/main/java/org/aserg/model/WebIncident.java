@@ -44,11 +44,10 @@ public class WebIncident extends Incident {
 	 */
 	private String userAgent;
 
-	public WebIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, int contentLength, String contentType, String httpMethod,
-			String pathParameter, String referer, List<WebRule> rulesList, int severityId, String severityStatus,
-			String userAgent) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+	public WebIncident(String dateTime, String srcIP, int srcPort, String service, String dstIP, int dstPort,
+			String protocol, Origin org, int contentLength, String contentType, String httpMethod, String pathParameter,
+			String referer, List<WebRule> rulesList, int severityId, String severityStatus, String userAgent) {
+		super(dateTime, srcIP, srcPort, service, dstIP, dstPort, protocol, org);
 		this.contentLength = contentLength;
 		this.contentType = contentType;
 		this.httpMethod = httpMethod;

@@ -11,44 +11,45 @@ public class Incident {
 	 */
 	private String dateTime;
 	/**
-	 * The sensor host that was attacked.
+	 * IP of the source that the attack originated from.
 	 */
-	private String localHost;
+	private String srcIP;
 	/**
-	 * The target port that was attacked.
+	 * Source port where the attack originated from.
 	 */
-	private int localPort;
+	private int srcPort;
 	/**
 	 * The type of service.
 	 */
+	private String service;
+	/**
+	 * This is the destination IP address of the targeted sensor.
+	 */
+	private String dstIP;
+	/**
+	 * This is the destination port of the targeted sensor.
+	 */
+	private int dstPort;
+	/**
+	 * The transport layer protocol (tcp, udp, etc).
+	 */
 	private String protocol;
 	/**
-	 * This is the source IP address who launched an attack.
+	 * The information regarding the origin of the attack.
 	 */
-	private String remoteHost;
-	/**
-	 * The port through which attack was launched.
-	 */
-	private int remotePort;
-	/**
-	 * The transport protocol (tcp, udp, etc).
-	 */
-	private String transport;
-	/**
-	 * The country from where the attack was originated.
-	 */
-	private String country;
+	private Origin origin;
 
-	public Incident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country) {
+	public Incident(String dateTime, String srcIP, int srcPort, String service, String dstIP, int dstPort,
+			String protocol, Origin org) {
+		super();
 		this.dateTime = dateTime;
-		this.localHost = localHost;
-		this.localPort = localPort;
+		this.srcIP = srcIP;
+		this.srcPort = srcPort;
+		this.service = service;
+		this.dstIP = dstIP;
+		this.dstPort = dstPort;
 		this.protocol = protocol;
-		this.remoteHost = remoteHost;
-		this.remotePort = remotePort;
-		this.transport = transport;
-		this.setCountry(country);
+		this.origin = org;
 	}
 
 	public String getDateTime() {
@@ -59,20 +60,44 @@ public class Incident {
 		this.dateTime = datetime;
 	}
 
-	public String getLocalHost() {
-		return localHost;
+	public String getSourceIP() {
+		return srcIP;
 	}
 
-	public void setLocalHost(String localHost) {
-		this.localHost = localHost;
+	public void setSourceIP(String localHost) {
+		this.srcIP = localHost;
 	}
 
-	public int getLocalPort() {
-		return localPort;
+	public int getSourcePort() {
+		return srcPort;
 	}
 
-	public void setLocalPort(int localPort) {
-		this.localPort = localPort;
+	public void setSourcePort(int localPort) {
+		this.srcPort = localPort;
+	}
+
+	public String getService() {
+		return service;
+	}
+
+	public void setService(String service) {
+		this.service = service;
+	}
+
+	public String getDestinationIP() {
+		return dstIP;
+	}
+
+	public void setDestinationIP(String remoteHost) {
+		this.dstIP = remoteHost;
+	}
+
+	public int getDestinationPort() {
+		return dstPort;
+	}
+
+	public void setDestinationPort(int remotePort) {
+		this.dstPort = remotePort;
 	}
 
 	public String getProtocol() {
@@ -83,36 +108,12 @@ public class Incident {
 		this.protocol = protocol;
 	}
 
-	public String getRemoteHost() {
-		return remoteHost;
+	public Origin getOrigin() {
+		return origin;
 	}
 
-	public void setRemoteHost(String remoteHost) {
-		this.remoteHost = remoteHost;
-	}
-
-	public int getRemotePort() {
-		return remotePort;
-	}
-
-	public void setRemotePort(int remotePort) {
-		this.remotePort = remotePort;
-	}
-
-	public String getTransport() {
-		return transport;
-	}
-
-	public void setTransport(String transport) {
-		this.transport = transport;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
+	public void setOrigin(Origin org) {
+		this.origin = org;
 	}
 
 }
