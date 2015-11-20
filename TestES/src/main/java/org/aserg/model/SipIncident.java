@@ -20,10 +20,9 @@ public class SipIncident extends Incident {
 	 */
 	private String sipUserAgent;
 
-	public SipIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, String sipCallId, String sipMethod,
-			String sipUserAgent) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+	public SipIncident(String dateTime, String srcIP, int srcPort, String service, String dstIP, int dstPort,
+			String protocol, Origin org, String sipCallId, String sipMethod, String sipUserAgent) {
+		super(dateTime, srcIP, srcPort, service, dstIP, dstPort, protocol, org);
 		this.sipCallId = sipCallId;
 		this.sipMethod = sipMethod;
 		this.sipUserAgent = sipUserAgent;

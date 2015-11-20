@@ -1,6 +1,5 @@
 package org.aserg.model;
 
-
 /**
  * Network Layer {@code Incident} where snort alert is triggered. Contains cid
  * for referring to the PCAP information in future.
@@ -27,43 +26,26 @@ public class NetworkLayerIncident extends Incident {
 	 * If ICMP event, then the type of ICMP, eg. Echo is type 8.
 	 */
 	private String icmpType;
-	
-	/**
-	 * 
-	 * @param dateTime
-	 * @param localHost
-	 * @param localPort
-	 * @param protocol
-	 * @param remoteHost
-	 * @param remotePort
-	 * @param transport
-	 * @param country
-	 * @param cid
-	 * @param sid
-	 * @param signature
-	 * @param signature_class
-	 */	
-	public NetworkLayerIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, int cid, int sid, String signature,
-			String signature_class) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+
+	public NetworkLayerIncident(String dateTime, String srcIP, int srcPort, String service, String dstIP, int dstPort,
+			String protocol, Origin org, int cid, int sid, String signature, String signatureClass, String icmpType) {
+		super(dateTime, srcIP, srcPort, service, dstIP, dstPort, protocol, org);
 		this.cid = cid;
 		this.sid = sid;
 		this.signature = signature;
-		this.signatureClass = signature_class;
-		this.setIcmpType(null);
+		this.signatureClass = signatureClass;
+		this.icmpType = icmpType;
 	}
-	
-	// with icmp
-	public NetworkLayerIncident(String dateTime, String localHost, int localPort, String protocol, String remoteHost,
-			int remotePort, String transport, String country, int cid, int sid, String signature,
-			String signature_class, String icmpType) {
-		super(dateTime, localHost, localPort, protocol, remoteHost, remotePort, transport, country);
+
+	// Without ICMP type
+	public NetworkLayerIncident(String dateTime, String srcIP, int srcPort, String service, String dstIP, int dstPort,
+			String protocol, Origin org, int cid, int sid, String signature, String signatureClass) {
+		super(dateTime, srcIP, srcPort, service, dstIP, dstPort, protocol, org);
 		this.cid = cid;
 		this.sid = sid;
 		this.signature = signature;
-		this.signatureClass = signature_class;
-		this.setIcmpType(icmpType);
+		this.signatureClass = signatureClass;
+		this.icmpType = null;
 	}
 
 	public int getCid() {
