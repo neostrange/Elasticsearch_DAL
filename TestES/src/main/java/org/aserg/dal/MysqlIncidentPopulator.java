@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.aserg.model.MysqlCommand;
 import org.aserg.model.MysqlIncident;
+import org.aserg.model.Origin;
 import org.aserg.utility.EnrichmentUtility;
 import org.aserg.utility.IOFileUtility;
 import org.aserg.utility.SqlUtility;
@@ -37,11 +38,12 @@ public class MysqlIncidentPopulator {
 					if (mysqlIncident != null)
 						mysqlIncidentList.add(mysqlIncident);
 					mysqlCommandList = new ArrayList<MysqlCommand>();
+					Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
+					org = org == null? null: org;
 					mysqlIncident = new MysqlIncident(rs.getString("connection_datetime").replace(' ', 'T'),
-							rs.getString("cmc.local_host"), rs.getInt("cmc.local_port"),
-							rs.getString("cmc.connection_protocol"), rs.getString("cmc.remote_host"),
-							rs.getInt("cmc.remote_port"), rs.getString("cmc.connection_transport"),
-							EnrichmentUtility.getCountry(rs.getString("cmc.remote_host")), null);
+							rs.getString("cmc.remote_host"), rs.getInt("cmc.remote_port"),
+							rs.getString("cmc.connection_protocol"), rs.getString("cmc.local_host"),
+							rs.getInt("cmc.local_port"), rs.getString("cmc.connection_transport"), org, null);
 					prev = rs.getString("cmc.connection");
 					IOFileUtility.writeTime("mysqlTime", rs.getString("connection_datetime"));
 					// add mysql command

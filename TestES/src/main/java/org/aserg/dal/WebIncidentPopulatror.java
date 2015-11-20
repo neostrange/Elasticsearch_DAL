@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.aserg.model.Origin;
 import org.aserg.model.WebIncident;
 import org.aserg.model.WebRule;
 import org.aserg.utility.EnrichmentUtility;
@@ -35,7 +36,7 @@ public class WebIncidentPopulatror {
 		String prev = null;
 		try {
 			while (rs.next()) {
-				String remotecountry = EnrichmentUtility.getCountry(rs.getString("client_ip"));
+
 				// in case of new event
 				if (!rs.getString("order_id").equals(prev)) {
 					if (webIncident != null) {
@@ -44,9 +45,12 @@ public class WebIncidentPopulatror {
 						}
 						webIncidentList.add(webIncident);
 					}
-					webIncident = new WebIncident(rs.getString("connection_datetime").replace(' ', 'T'), rs.getString("server_ip"),
+					// TODO enrichmentutil geolocation and populate origin
+					Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
+					org = org == null? null: org;
+					webIncident = new WebIncident(rs.getString("connection_datetime").replace(' ', 'T'), rs.getString("remote_host"),
 							rs.getInt("a_server_port"), rs.getString("b_protocol"), rs.getString("client_ip"),
-							rs.getInt("a_client_port"), "tcp", remotecountry, rs.getInt("f_content_length"),
+							rs.getInt("a_client_port"), "tcp", org, rs.getInt("f_content_length"),
 							rs.getString("f_content_type"), rs.getString("b_method"), rs.getString("b_path_parameter"),
 							rs.getString("b_referer"), null, rs.getInt("id_severity"), rs.getString("severity"),
 							rs.getString("b_user_agent"));

@@ -52,19 +52,17 @@ public class SqlUtility {
 			+ " LEFT JOIN mysql_command_args ON (mysql_command_args.mysql_command = cmc.mysql_command)"
 			+ " LEFT JOIN mysql_command_ops ON (mysql_command_ops.mysql_command_cmd = cmc.mysql_command_cmd) ";
 
-	public static final String NETWORK_LAYER_INCIDENT_QUERY = "SELECT INET_NTOA(iphdr.ip_src) as remote_host,"
-			+ "tcphdr.tcp_dport as tcp_local_port," + "udphdr.udp_dport as udp_local_port,"
-			+ "event.timestamp as connection_datetime," + "INET_NTOA(iphdr.ip_dst) as local_host,"
-			+ "tcphdr.tcp_sport as tcp_remote_port," + "udphdr.udp_sport as udp_remote_port," + "event.cid,"
-			+ "event.sid," + "signature.sig_name," + "sig_class.sig_class_name " + "FROM event "
-			+ "INNER JOIN iphdr on (event.cid=iphdr.cid AND event.sid=iphdr.sid)"
-			+ "LEFT JOIN icmphdr on (iphdr.cid = icmphdr.cid AND iphdr.sid=icmphdr.sid)"
-			+ "LEFT JOIN tcphdr on (iphdr.cid = tcphdr.cid AND iphdr.sid = tcphdr.sid)"
-			+ "LEFT JOIN udphdr on (iphdr.cid = udphdr.cid AND iphdr.sid = udphdr.sid)"
-			+ "INNER JOIN signature on (event.signature = signature.sig_id)"
+	public static final String NETWORK_LAYER_INCIDENT_QUERY = "select INET_NTOA(iphdr.ip_src) as remote_host, "
+				+ "tcphdr.tcp_dport as tcp_local_port, udphdr.udp_dport as udp_local_port, 	"
+				+ "event.timestamp as connection_datetime,INET_NTOA(iphdr.ip_dst) as local_host,"
+				+ "tcphdr.tcp_sport as tcp_remote_port,	udphdr.udp_sport as udp_remote_port, "
+				+ "icmphdr.icmp_type,event.cid,event.sid, signature.sig_name, sig_class.sig_class_name "
+			+ "FROM event INNER JOIN iphdr on (event.cid=iphdr.cid AND event.sid=iphdr.sid) "
+			+ "LEFT JOIN icmphdr on (iphdr.cid = icmphdr.cid AND iphdr.sid=icmphdr.sid) LEFT JOIN tcphdr on (iphdr.cid = tcphdr.cid AND iphdr.sid = tcphdr.sid) "
+			+ "LEFT JOIN udphdr on (iphdr.cid = udphdr.cid AND iphdr.sid = udphdr.sid)  INNER JOIN signature on (event.signature = signature.sig_id) "
 			+ "LEFT JOIN sig_class on (signature.sig_class_id = sig_class.sig_class_id)";
 
-	public static final String SSH_INCIDENT_QUERY = " SELECT sessions.id as order_id, sensor, sessions.ip, sensors.ip as localhost,"
+	public static final String SSH_INCIDENT_QUERY = " SELECT sessions.id as order_id, sensor, sessions.ip as remote_host, sensors.ip as localhost,"
 				+ " starttime as connection_datetime, endtime, clients.version, auth.username, "
 				+ "auth.password,auth.success as auth_success,auth.timestamp as auth_timestamp, "
 				+ "input.input, input.success as input_success,input.timestamp as input_timestamp "
@@ -73,7 +71,7 @@ public class SqlUtility {
 				+ "LEFT JOIN sensors on sensors.id = sessions.sensor ";
 
 	public static final String WEB_INCIDENT_QUERY = "SELECT events.event_id as order_id,a_timestamp as connection_datetime,"
-			+ "INET_NTOA(a_client_ip) as client_ip,a_client_port,INET_NTOA(a_server_ip) as server_ip,a_server_port,"
+			+ "INET_NTOA(a_client_ip) as client_ip,a_client_port,INET_NTOA(a_server_ip) as remote_host ,a_server_port,"
 			+ "b_method,b_path, b_path_parameter,b_protocol, b_user_agent,b_referer,f_content_length,"
 			+ "f_content_type, f_status,id_severity,severity.severity,message_ruleMsg" + " from events "
 			+ "left join events_messages on events_messages.event_id=events.event_id "
@@ -85,6 +83,12 @@ public class SqlUtility {
 			+ "connection_transport,local_host,remote_port," + "sip_commands.sip_command_method,"
 			+ "sip_commands.sip_command_user_agent," + "sip_commands.sip_command_call_id " + "FROM sip_commands "
 			+ "INNER JOIN connections on (sip_commands.connection=connections.connection)";
+	
+	public static final String SSH_MALWARE_INCIDENT_QUERY = "SELECT downloads.timestamp as connection_datetime, "
+			+ "downloads.outfile as binary, sessions.id, "
+			+ "sensors.ip as localhost, url, sessions.ip as remotehost FROM downloads "
+			+ "LEFT JOIN sessions on downloads.session = sessions.id "
+			+ "LEFT JOIN sensors on sensors.id = sessions.sensor ";
 
 	final static String BASE_PATH = System.getProperty("user.dir") + "/config/Db.properties";
 	/**
@@ -135,6 +139,23 @@ public class SqlUtility {
 			e.printStackTrace();
 		}
 
+	}
+	
+	static {
+		MysqlDataSource mds = new MysqlDataSource();
+		mds.setServerName(getName().getProperty("HOST_01"));
+		mds.setPortNumber(Integer.parseInt(getName().getProperty("NETWORK_PORT")));
+		mds.setDatabaseName(getName().getProperty("NETWORK_DB_NAME"));
+		mds.setUser(getName().getProperty("NETWORK_USER"));
+		mds.setPassword(getName().getProperty("NETWORK_PASSWORD"));
+
+		// Getting Connection object
+		try {
+			netConnection = mds.getConnection();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	static {

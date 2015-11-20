@@ -11,6 +11,19 @@ import org.elasticsearch.common.geo.GeoPoint;
 public class Origin {
 	
 	/**
+	 * @param srcCountry
+	 * @param srcCountryCode
+	 * @param city
+	 * @param geoPoint
+	 */
+	public Origin(String srcCountry, String srcCountryCode, String city, GeoPoint geoPoint) {
+		super();
+		this.srcCountry = srcCountry;
+		this.srcCountryCode = srcCountryCode;
+		this.city = city;
+		this.geoPoint = geoPoint;
+	}
+	/**
 	 * The country from where the attack originated.
 	 */
 	private String srcCountry;

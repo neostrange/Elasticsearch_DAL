@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.aserg.model.NetworkLayerIncident;
+import org.aserg.model.Origin;
 import org.aserg.utility.EnrichmentUtility;
 import org.aserg.utility.IOFileUtility;
 import org.aserg.utility.SqlUtility;
@@ -17,16 +18,16 @@ import org.aserg.utility.SqlUtility;
  * @author Waseem
  *
  */
-public class NetworkLayerIncidentPopulator{
+public class NetworkLayerIncidentPopulator {
 
 	List<NetworkLayerIncident> networkLayerIncidentList = new ArrayList<NetworkLayerIncident>();
 	NetworkLayerIncident networkLayerIncident = null;
 
 	public List<NetworkLayerIncident> populate() {
-		
+
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.netConnection,
 				IOFileUtility.readTime("networkTime"));
-		
+
 		String type = null;
 		String transport = null;
 		String protocol = null;
@@ -51,11 +52,13 @@ public class NetworkLayerIncidentPopulator{
 					protocol = "protocol";
 
 				}
-				networkLayerIncident = new NetworkLayerIncident(rs.getString("connection_datetime").replace(' ', 'T'), rs.getString("local_host"),
-						localPort, protocol, EnrichmentUtility.getCountry(rs.getString("remote_host")), remotePort, transport,
-						EnrichmentUtility.getCountry(rs.getString("remote_host")), rs.getInt("cid"), rs.getInt("sid"),
-						rs.getString("sig_name"), rs.getString("sig_class_name"), type);
-
+				// TODO enrichmentutil geolocation and populate origin
+				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
+				org = org == null? null: org;
+				networkLayerIncident = new NetworkLayerIncident(rs.getString("connection_datetime").replace(' ', 'T'),
+						rs.getString("remote_host"), remotePort, protocol, rs.getString("local_host"), localPort,
+						transport, org, rs.getInt("cid"), rs.getInt("sid"), rs.getString("sig_name"),
+						rs.getString("sig_class_name"), type);
 				IOFileUtility.writeTime("networkTime", rs.getString("connection_datetime"));
 				networkLayerIncidentList.add(networkLayerIncident);
 
