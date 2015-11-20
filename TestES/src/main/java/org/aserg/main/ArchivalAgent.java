@@ -3,11 +3,11 @@
  */
 package org.aserg.main;
 
-import java.util.List;
-
 import org.aserg.dal.MalwareIncidentPopulator;
 import org.aserg.dal.MssqlIncidentPopulator;
-import org.aserg.model.MalwareIncident;
+import org.aserg.dal.MysqlIncidentPopulator;
+import org.aserg.dal.NetworkLayerIncidentPopulator;
+import org.aserg.dal.SipIncidentPopulator;
 import org.aserg.utility.EsUtility;
 
 /**
@@ -30,10 +30,16 @@ public class ArchivalAgent {
 		// TODO Auto-generated method stub
 		MalwareIncidentPopulator malware = new MalwareIncidentPopulator();
 		MssqlIncidentPopulator mssql = new MssqlIncidentPopulator(); 
+		MysqlIncidentPopulator mysql = new MysqlIncidentPopulator();
+		NetworkLayerIncidentPopulator network = new NetworkLayerIncidentPopulator();
+		SipIncidentPopulator sip = new SipIncidentPopulator();
 		//while (true) {
 			try {
-				EsUtility.pushMalwareData(malware.populate(), "incidents", "malware_incidents");
-				EsUtility.pushMssqlData(mssql.populate(), "incidents", "mssql_incidents");
+				EsUtility.pushMalwareData(malware.populate(), "incidents", "malwareIncidents");
+				EsUtility.pushMssqlData(mssql.populate(), "incidents", "mssqlIncidents");
+				EsUtility.pushMysqlData(mysql.populate(), "incidents", "mysqlIncidents");
+//				EsUtility.pushNetworkData(network.populate(), "incidents", "networkLayerIncidents");
+				EsUtility.pushSipData(sip.populate(), "incidents", "sipIncidents");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
