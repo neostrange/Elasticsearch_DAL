@@ -31,7 +31,7 @@ public class EnrichmentUtility {
 	public static Origin getOrigin(String remote_host) {
 		try {
 
-			String dir = "E:/TI/GeoLiteCity.dat";
+			String dir = IOFileUtility.readTime("GEOIP_FILE_PATH_LINUX");
 			LookupService cl = new LookupService(dir, LookupService.GEOIP_MEMORY_CACHE);
 			Location loc = cl.getLocation(remote_host);
 			if(loc != null){
