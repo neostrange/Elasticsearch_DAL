@@ -53,22 +53,21 @@ public class SqlUtility {
 			+ " LEFT JOIN mysql_command_ops ON (mysql_command_ops.mysql_command_cmd = cmc.mysql_command_cmd) ";
 
 	public static final String NETWORK_LAYER_INCIDENT_QUERY = "select INET_NTOA(iphdr.ip_src) as remote_host, "
-				+ "tcphdr.tcp_dport as tcp_local_port, udphdr.udp_dport as udp_local_port, 	"
-				+ "event.timestamp as connection_datetime,INET_NTOA(iphdr.ip_dst) as local_host,"
-				+ "tcphdr.tcp_sport as tcp_remote_port,	udphdr.udp_sport as udp_remote_port, "
-				+ "icmphdr.icmp_type,event.cid,event.sid, signature.sig_name, sig_class.sig_class_name "
+			+ "tcphdr.tcp_dport as tcp_local_port, udphdr.udp_dport as udp_local_port, 	"
+			+ "event.timestamp as connection_datetime,INET_NTOA(iphdr.ip_dst) as local_host,"
+			+ "tcphdr.tcp_sport as tcp_remote_port,	udphdr.udp_sport as udp_remote_port, "
+			+ "icmphdr.icmp_type,event.cid,event.sid, signature.sig_name, sig_class.sig_class_name "
 			+ "FROM event INNER JOIN iphdr on (event.cid=iphdr.cid AND event.sid=iphdr.sid) "
 			+ "LEFT JOIN icmphdr on (iphdr.cid = icmphdr.cid AND iphdr.sid=icmphdr.sid) LEFT JOIN tcphdr on (iphdr.cid = tcphdr.cid AND iphdr.sid = tcphdr.sid) "
 			+ "LEFT JOIN udphdr on (iphdr.cid = udphdr.cid AND iphdr.sid = udphdr.sid)  INNER JOIN signature on (event.signature = signature.sig_id) "
 			+ "LEFT JOIN sig_class on (signature.sig_class_id = sig_class.sig_class_id)";
 
 	public static final String SSH_INCIDENT_QUERY = " SELECT sessions.id as order_id, sensor, sessions.ip as remote_host, sensors.ip as localhost,"
-				+ " starttime as connection_datetime, endtime, clients.version, auth.username, "
-				+ "auth.password,auth.success as auth_success,auth.timestamp as auth_timestamp, "
-				+ "input.input, input.success as input_success,input.timestamp as input_timestamp "
-			+ "FROM sessions "
-				+ "LEFT JOIN auth ON auth.session = sessions.id LEFT JOIN input ON input.session = sessions.id  LEFT JOIN clients ON clients.id = sessions.client "
-				+ "LEFT JOIN sensors on sensors.id = sessions.sensor ";
+			+ " starttime as connection_datetime, endtime, clients.version, auth.username, "
+			+ "auth.password,auth.success as auth_success,auth.timestamp as auth_timestamp, "
+			+ "input.input, input.success as input_success,input.timestamp as input_timestamp " + "FROM sessions "
+			+ "LEFT JOIN auth ON auth.session = sessions.id LEFT JOIN input ON input.session = sessions.id  LEFT JOIN clients ON clients.id = sessions.client "
+			+ "LEFT JOIN sensors on sensors.id = sessions.sensor ";
 
 	public static final String WEB_INCIDENT_QUERY = "SELECT events.event_id as order_id,a_timestamp as connection_datetime,"
 			+ "INET_NTOA(a_client_ip) as client_ip,a_client_port,INET_NTOA(a_server_ip) as remote_host ,a_server_port,"
@@ -83,7 +82,7 @@ public class SqlUtility {
 			+ "connection_transport,local_host,remote_port," + "sip_commands.sip_command_method,"
 			+ "sip_commands.sip_command_user_agent," + "sip_commands.sip_command_call_id " + "FROM sip_commands "
 			+ "INNER JOIN connections on (sip_commands.connection=connections.connection)";
-	
+
 	public static final String SSH_MALWARE_INCIDENT_QUERY = "SELECT downloads.timestamp as connection_datetime, "
 			+ "downloads.outfile as binary, sessions.id, "
 			+ "sensors.ip as localhost, url, sessions.ip as remotehost FROM downloads "
@@ -124,12 +123,17 @@ public class SqlUtility {
 	 * @return Nothing
 	 */
 	static {
+		
 		MysqlDataSource mds = new MysqlDataSource();
-		mds.setServerName(getPropertyFromConf().getProperty("HOST_01"));
-		mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("SSH_PORT")));
-		mds.setDatabaseName(getPropertyFromConf().getProperty("SSH_DB_NAME"));
-		mds.setUser(getPropertyFromConf().getProperty("SSH_USER"));
-		mds.setPassword(getPropertyFromConf().getProperty("SSH_PASSWORD"));
+		try{
+			mds.setServerName(getPropertyFromConf().getProperty("HOST"));
+			mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("SSH_PORT")));
+			mds.setDatabaseName(getPropertyFromConf().getProperty("SSH_DB_NAME"));
+			mds.setUser(getPropertyFromConf().getProperty("SSH_USER"));
+			mds.setPassword(getPropertyFromConf().getProperty("SSH_PASSWORD"));
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 
 		// Getting Connection object
 		try {
@@ -140,14 +144,20 @@ public class SqlUtility {
 		}
 
 	}
-	
+
 	static {
+		
 		MysqlDataSource mds = new MysqlDataSource();
-		mds.setServerName(getPropertyFromConf().getProperty("HOST_01"));
-		mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("NETWORK_PORT")));
-		mds.setDatabaseName(getPropertyFromConf().getProperty("NETWORK_DB_NAME"));
-		mds.setUser(getPropertyFromConf().getProperty("NETWORK_USER"));
-		mds.setPassword(getPropertyFromConf().getProperty("NETWORK_PASSWORD"));
+		try{
+			mds.setServerName(getPropertyFromConf().getProperty("HOST"));
+			mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("NETWORK_PORT")));
+			mds.setDatabaseName(getPropertyFromConf().getProperty("NETWORK_DB_NAME"));
+			mds.setUser(getPropertyFromConf().getProperty("NETWORK_USER"));
+			mds.setPassword(getPropertyFromConf().getProperty("NETWORK_PASSWORD"));
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		
 
 		// Getting Connection object
 		try {
@@ -160,11 +170,16 @@ public class SqlUtility {
 
 	static {
 		MysqlDataSource mds = new MysqlDataSource();
-		mds.setServerName(getPropertyFromConf().getProperty("HOST_04"));
-		mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("WEB_PORT")));
-		mds.setDatabaseName(getPropertyFromConf().getProperty("WEB_DB_NAME"));
-		mds.setUser(getPropertyFromConf().getProperty("WEB_USER"));
-		mds.setPassword(getPropertyFromConf().getProperty("WEB_PASSWORD"));
+		try{
+			mds.setServerName(getPropertyFromConf().getProperty("HOST"));
+			mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("WEB_PORT")));
+			mds.setDatabaseName(getPropertyFromConf().getProperty("WEB_DB_NAME"));
+			mds.setUser(getPropertyFromConf().getProperty("WEB_USER"));
+			mds.setPassword(getPropertyFromConf().getProperty("WEB_PASSWORD"));
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		
 
 		// Getting Connection object
 		try {
