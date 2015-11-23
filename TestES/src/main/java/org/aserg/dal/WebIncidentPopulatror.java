@@ -21,16 +21,17 @@ import org.aserg.utility.SqlUtility;
  */
 public class WebIncidentPopulatror {
 
-	List<WebIncident> webIncidentList = new ArrayList<WebIncident>();
-	WebRule webRule = null;
-	List<WebRule> webRuleList = null;
-	WebIncident webIncident = null;
 /**
  * Function will populate Web Incidents objects
  * @return
  */
 	public List<WebIncident> populate() {
 		
+		
+		List<WebIncident> webIncidentList = new ArrayList<WebIncident>();
+		WebRule webRule = null;
+		List<WebRule> webRuleList = null;
+		WebIncident webIncident = null;
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.WEB_INCIDENT_QUERY, SqlUtility.webConnection,
 				IOFileUtility.readTime("webTime"));
 		String prev = null;

@@ -14,16 +14,15 @@ import org.aserg.utility.IOFileUtility;
 import org.aserg.utility.SqlUtility;
 
 public class SshIncidentPopulator {
-
-	SshIncident ssh = null;
-	List<SshIncident> sshIncidentList = new ArrayList<SshIncident>();
-	List<Auth> authList = null;
-	Auth auth = null;
-	List<Input> inputList = null;
-	Input input = null;
 	
 	public List<SshIncident> populate() {
 		
+		SshIncident ssh = null;
+		List<SshIncident> sshIncidentList = new ArrayList<SshIncident>();
+		List<Auth> authList = null;
+		Auth auth = null;
+		List<Input> inputList = null;
+		Input input = null;
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, SqlUtility.kippoConnection,
 				IOFileUtility.readTime("sshTime"));
 		String prev = null;

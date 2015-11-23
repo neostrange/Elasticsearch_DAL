@@ -13,8 +13,7 @@ import org.aserg.utility.SqlUtility;
 
 public class MssqlIncidentPopulator {
 
-	List<MssqlIncident> mssqlIncidentList = new ArrayList<MssqlIncident>();
-	MssqlIncident mssqlIncident;
+	
 
 	public MssqlIncidentPopulator() {
 		// TODO Auto-generated constructor stub
@@ -22,6 +21,8 @@ public class MssqlIncidentPopulator {
 
 	public List<MssqlIncident> populate() {
 
+		List<MssqlIncident> mssqlIncidentList = new ArrayList<MssqlIncident>();
+		MssqlIncident mssqlIncident;
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.dionaeaConnection,
 				IOFileUtility.readTime("mssqlTime"));
 

@@ -20,10 +20,11 @@ import org.aserg.utility.SqlUtility;
  */
 public class SipIncidentPopulator{
 	
-	List<SipIncident> sipIncidentList = new ArrayList<SipIncident>();
-	SipIncident sipIncident;
 
 	public List<SipIncident> populate() {
+		
+		List<SipIncident> sipIncidentList = new ArrayList<SipIncident>();
+		SipIncident sipIncident;
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.dionaeaConnection,
 				IOFileUtility.readTime("sipTime"));
 		try {
@@ -32,7 +33,7 @@ public class SipIncidentPopulator{
 				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 				org = org == null? null: org;
 				String datetime = rs.getString("connection_datetime").replace(' ', 'T');
-				SipIncident sipIncident = new SipIncident(datetime, rs.getString("remote_host"), rs.getInt("remote_port"),
+				sipIncident = new SipIncident(datetime, rs.getString("remote_host"), rs.getInt("remote_port"),
 						rs.getString("connection_protocol"), rs.getString("local_host"), rs.getInt("local_port"),
 						rs.getString("connection_transport"), org, rs.getString("sip_command_call_id"),
 						rs.getString("sip_command_method"), rs.getString("sip_command_user_agent"));

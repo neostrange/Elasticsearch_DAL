@@ -109,8 +109,8 @@ public class SqlUtility {
 	static {
 
 		try {
-			Class.forName(getName().getProperty("SQLITE_DRIVER"));
-			dionaeaConnection = DriverManager.getConnection(getName().getProperty("DATABASE_DIONAEA_WINDOWS"));
+			Class.forName(getPropertyFromConf().getProperty("SQLITE_DRIVER"));
+			dionaeaConnection = DriverManager.getConnection(getPropertyFromConf().getProperty("DATABASE_DIONAEA"));
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
@@ -125,11 +125,11 @@ public class SqlUtility {
 	 */
 	static {
 		MysqlDataSource mds = new MysqlDataSource();
-		mds.setServerName(getName().getProperty("HOST_01"));
-		mds.setPortNumber(Integer.parseInt(getName().getProperty("SSH_PORT")));
-		mds.setDatabaseName(getName().getProperty("SSH_DB_NAME"));
-		mds.setUser(getName().getProperty("SSH_USER"));
-		mds.setPassword(getName().getProperty("SSH_PASSWORD"));
+		mds.setServerName(getPropertyFromConf().getProperty("HOST_01"));
+		mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("SSH_PORT")));
+		mds.setDatabaseName(getPropertyFromConf().getProperty("SSH_DB_NAME"));
+		mds.setUser(getPropertyFromConf().getProperty("SSH_USER"));
+		mds.setPassword(getPropertyFromConf().getProperty("SSH_PASSWORD"));
 
 		// Getting Connection object
 		try {
@@ -143,11 +143,11 @@ public class SqlUtility {
 	
 	static {
 		MysqlDataSource mds = new MysqlDataSource();
-		mds.setServerName(getName().getProperty("HOST_01"));
-		mds.setPortNumber(Integer.parseInt(getName().getProperty("NETWORK_PORT")));
-		mds.setDatabaseName(getName().getProperty("NETWORK_DB_NAME"));
-		mds.setUser(getName().getProperty("NETWORK_USER"));
-		mds.setPassword(getName().getProperty("NETWORK_PASSWORD"));
+		mds.setServerName(getPropertyFromConf().getProperty("HOST_01"));
+		mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("NETWORK_PORT")));
+		mds.setDatabaseName(getPropertyFromConf().getProperty("NETWORK_DB_NAME"));
+		mds.setUser(getPropertyFromConf().getProperty("NETWORK_USER"));
+		mds.setPassword(getPropertyFromConf().getProperty("NETWORK_PASSWORD"));
 
 		// Getting Connection object
 		try {
@@ -160,11 +160,11 @@ public class SqlUtility {
 
 	static {
 		MysqlDataSource mds = new MysqlDataSource();
-		mds.setServerName(getName().getProperty("HOST_04"));
-		mds.setPortNumber(Integer.parseInt(getName().getProperty("WEB_PORT")));
-		mds.setDatabaseName(getName().getProperty("WEB_DB_NAME"));
-		mds.setUser(getName().getProperty("WEB_USER"));
-		mds.setPassword(getName().getProperty("WEB_PASSWORD"));
+		mds.setServerName(getPropertyFromConf().getProperty("HOST_04"));
+		mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("WEB_PORT")));
+		mds.setDatabaseName(getPropertyFromConf().getProperty("WEB_DB_NAME"));
+		mds.setUser(getPropertyFromConf().getProperty("WEB_USER"));
+		mds.setPassword(getPropertyFromConf().getProperty("WEB_PASSWORD"));
 
 		// Getting Connection object
 		try {
@@ -231,7 +231,7 @@ public class SqlUtility {
 		return rs;
 	}
 
-	public static Properties getName() {
+	public static Properties getPropertyFromConf() {
 		BufferedReader br;
 		Properties p = new Properties();
 		try {

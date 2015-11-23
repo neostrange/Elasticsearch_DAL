@@ -20,10 +20,11 @@ import org.aserg.utility.SqlUtility;
  */
 public class NetworkLayerIncidentPopulator {
 
-	List<NetworkLayerIncident> networkLayerIncidentList = new ArrayList<NetworkLayerIncident>();
-	NetworkLayerIncident networkLayerIncident = null;
+	
 
 	public List<NetworkLayerIncident> populate() {
+		List<NetworkLayerIncident> networkLayerIncidentList = new ArrayList<NetworkLayerIncident>();
+		NetworkLayerIncident networkLayerIncident = null;
 
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.netConnection,
 				IOFileUtility.readTime("networkTime"));

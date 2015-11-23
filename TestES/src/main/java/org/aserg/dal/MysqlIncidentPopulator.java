@@ -14,17 +14,17 @@ import org.aserg.utility.SqlUtility;
 
 public class MysqlIncidentPopulator {
 
-	MysqlIncident mysqlIncident = null;
-	List<MysqlIncident> mysqlIncidentList = new ArrayList<MysqlIncident>();
-	MysqlCommand mysqlCommand = null;
-	List<MysqlCommand> mysqlCommandList = null;
-
 	public MysqlIncidentPopulator() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public List<MysqlIncident> populate() {
 
+		MysqlIncident mysqlIncident = null;
+		List<MysqlIncident> mysqlIncidentList = new ArrayList<MysqlIncident>();
+		MysqlCommand mysqlCommand = null;
+		List<MysqlCommand> mysqlCommandList = null;
+		
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MYSQL_INCIDENT_QUERY, SqlUtility.dionaeaConnection,
 				IOFileUtility.readTime("mysqlTime"));
 
@@ -38,8 +38,8 @@ public class MysqlIncidentPopulator {
 					if (mysqlIncident != null)
 						mysqlIncidentList.add(mysqlIncident);
 					mysqlCommandList = new ArrayList<MysqlCommand>();
-					Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
-					org = org == null? null: org;
+					Origin org = EnrichmentUtility.getOrigin(rs.getString("cmc.remote_host"));
+					org = org == null ? null : org;
 					mysqlIncident = new MysqlIncident(rs.getString("connection_datetime").replace(' ', 'T'),
 							rs.getString("cmc.remote_host"), rs.getInt("cmc.remote_port"),
 							rs.getString("cmc.connection_protocol"), rs.getString("cmc.local_host"),
