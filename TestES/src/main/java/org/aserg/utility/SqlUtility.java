@@ -89,7 +89,7 @@ public class SqlUtility {
 			+ "LEFT JOIN sessions on downloads.session = sessions.id "
 			+ "LEFT JOIN sensors on sensors.id = sessions.sensor ";
 
-	final static String BASE_PATH = System.getProperty("user.dir") + "/config/Db.properties";
+	final static String BASE_PATH = System.getProperty("user.dir") + "/config/db.properties";
 	/**
 	 * This variable will create a connection with Sqlite and mysql
 	 */
