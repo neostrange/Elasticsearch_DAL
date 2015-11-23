@@ -26,7 +26,7 @@ public class NetworkLayerIncidentPopulator {
 		List<NetworkLayerIncident> networkLayerIncidentList = new ArrayList<NetworkLayerIncident>();
 		NetworkLayerIncident networkLayerIncident = null;
 
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.netConnection,
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.getNetConnection(),
 				IOFileUtility.readTime("networkTime"));
 
 		String type = null;

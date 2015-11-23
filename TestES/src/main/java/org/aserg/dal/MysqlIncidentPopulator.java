@@ -14,9 +14,6 @@ import org.aserg.utility.SqlUtility;
 
 public class MysqlIncidentPopulator {
 
-	public MysqlIncidentPopulator() {
-		// TODO Auto-generated constructor stub
-	}
 
 	public List<MysqlIncident> populate() {
 
@@ -25,7 +22,7 @@ public class MysqlIncidentPopulator {
 		MysqlCommand mysqlCommand = null;
 		List<MysqlCommand> mysqlCommandList = null;
 		
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MYSQL_INCIDENT_QUERY, SqlUtility.dionaeaConnection,
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MYSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				IOFileUtility.readTime("mysqlTime"));
 
 		String prev = null;

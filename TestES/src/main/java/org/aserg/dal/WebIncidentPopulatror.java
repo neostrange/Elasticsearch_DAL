@@ -32,7 +32,7 @@ public class WebIncidentPopulatror {
 		WebRule webRule = null;
 		List<WebRule> webRuleList = null;
 		WebIncident webIncident = null;
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.WEB_INCIDENT_QUERY, SqlUtility.webConnection,
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.WEB_INCIDENT_QUERY, SqlUtility.getWebConnection(),
 				IOFileUtility.readTime("webTime"));
 		String prev = null;
 		try {

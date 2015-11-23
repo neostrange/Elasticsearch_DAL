@@ -25,7 +25,7 @@ public class SipIncidentPopulator{
 		
 		List<SipIncident> sipIncidentList = new ArrayList<SipIncident>();
 		SipIncident sipIncident;
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.dionaeaConnection,
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				IOFileUtility.readTime("sipTime"));
 		try {
 			while (rs.next()) {

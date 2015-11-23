@@ -40,13 +40,21 @@ public class ArchivalAgent {
 		SshIncidentPopulator ssh = new SshIncidentPopulator();
 		while (true) {
 			try {
-				if(IOFileUtility.readTime("dionaeaState").equals("on")){
+				if(IOFileUtility.readTime("malwareState").equals("on")){
 
 					EsUtility.pushMalwareData(malware.populate(), "incidents", "malwareIncidents");
+				}
+				if(IOFileUtility.readTime("mssqlState").equals("on")){
+
 					EsUtility.pushMssqlData(mssql.populate(), "incidents", "mssqlIncidents");
+				}
+				if(IOFileUtility.readTime("mysqlState").equals("on")){
+
 					EsUtility.pushMysqlData(mysql.populate(), "incidents", "mysqlIncidents");
+				}
+				if(IOFileUtility.readTime("sipState").equals("on")){
+
 					EsUtility.pushSipData(sip.populate(), "incidents", "sipIncidents");
-					
 				}
 				if(IOFileUtility.readTime("sshState").equals("on")){
 

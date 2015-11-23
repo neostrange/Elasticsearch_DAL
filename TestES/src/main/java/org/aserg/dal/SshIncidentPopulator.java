@@ -23,7 +23,7 @@ public class SshIncidentPopulator {
 		Auth auth = null;
 		List<Input> inputList = null;
 		Input input = null;
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, SqlUtility.kippoConnection,
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, SqlUtility.getKippoConnection(),
 				IOFileUtility.readTime("sshTime"));
 		String prev = null;
 		boolean authenticated = false;

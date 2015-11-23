@@ -23,7 +23,7 @@ public class MssqlIncidentPopulator {
 
 		List<MssqlIncident> mssqlIncidentList = new ArrayList<MssqlIncident>();
 		MssqlIncident mssqlIncident;
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.dionaeaConnection,
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				IOFileUtility.readTime("mssqlTime"));
 
 		try {

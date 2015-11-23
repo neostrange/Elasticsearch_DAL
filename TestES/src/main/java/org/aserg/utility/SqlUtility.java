@@ -105,14 +105,21 @@ public class SqlUtility {
 	 *                SQLException
 	 * @return Nothing
 	 */
-	static {
+	public static Connection getDionaeaConnection() {
 
 		try {
-			Class.forName(getPropertyFromConf().getProperty("SQLITE_DRIVER"));
-			dionaeaConnection = DriverManager.getConnection(getPropertyFromConf().getProperty("DATABASE_DIONAEA"));
+			if(dionaeaConnection == null){
+
+				Class.forName(getPropertyFromConf().getProperty("SQLITE_DRIVER"));
+				dionaeaConnection = DriverManager.getConnection(getPropertyFromConf().getProperty("DATABASE_DIONAEA"));
+				System.out.println(dionaeaConnection);
+				return dionaeaConnection;
+			}
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println(dionaeaConnection);
+		return dionaeaConnection;
 	}
 
 	/**
@@ -122,72 +129,87 @@ public class SqlUtility {
 	 * @exception SqlException
 	 * @return Nothing
 	 */
-	static {
-		
-		MysqlDataSource mds = new MysqlDataSource();
-		try{
-			mds.setServerName(getPropertyFromConf().getProperty("HOST"));
-			mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("SSH_PORT")));
-			mds.setDatabaseName(getPropertyFromConf().getProperty("SSH_DB_NAME"));
-			mds.setUser(getPropertyFromConf().getProperty("SSH_USER"));
-			mds.setPassword(getPropertyFromConf().getProperty("SSH_PASSWORD"));
-		} catch(Exception e){
-			e.printStackTrace();
-		}
+	public static Connection getKippoConnection() {
 
-		// Getting Connection object
-		try {
-			kippoConnection = mds.getConnection();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		MysqlDataSource mds = null;
+		if(kippoConnection == null){
+			try {
+				mds = new MysqlDataSource();
+				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
+				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("SSH_PORT")));
+				mds.setDatabaseName(getPropertyFromConf().getProperty("SSH_DB_NAME"));
+				mds.setUser(getPropertyFromConf().getProperty("SSH_USER"));
+				mds.setPassword(getPropertyFromConf().getProperty("SSH_PASSWORD"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			// Getting Connection object
+			try {
+				kippoConnection = mds.getConnection();
+				return kippoConnection;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		return kippoConnection;
 
 	}
 
-	static {
-		
-		MysqlDataSource mds = new MysqlDataSource();
-		try{
-			mds.setServerName(getPropertyFromConf().getProperty("HOST"));
-			mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("NETWORK_PORT")));
-			mds.setDatabaseName(getPropertyFromConf().getProperty("NETWORK_DB_NAME"));
-			mds.setUser(getPropertyFromConf().getProperty("NETWORK_USER"));
-			mds.setPassword(getPropertyFromConf().getProperty("NETWORK_PASSWORD"));
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-		
+	public static Connection getNetConnection() {
 
-		// Getting Connection object
-		try {
-			netConnection = mds.getConnection();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		MysqlDataSource mds = null;
+		if(netConnection == null){
+			mds = new MysqlDataSource();
+			try {
+				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
+				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("NETWORK_PORT")));
+				mds.setDatabaseName(getPropertyFromConf().getProperty("NETWORK_DB_NAME"));
+				mds.setUser(getPropertyFromConf().getProperty("NETWORK_USER"));
+				mds.setPassword(getPropertyFromConf().getProperty("NETWORK_PASSWORD"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			// Getting Connection object
+			try {
+				netConnection = mds.getConnection();
+				return netConnection;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		return netConnection;
+
 	}
 
-	static {
-		MysqlDataSource mds = new MysqlDataSource();
-		try{
-			mds.setServerName(getPropertyFromConf().getProperty("HOST"));
-			mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("WEB_PORT")));
-			mds.setDatabaseName(getPropertyFromConf().getProperty("WEB_DB_NAME"));
-			mds.setUser(getPropertyFromConf().getProperty("WEB_USER"));
-			mds.setPassword(getPropertyFromConf().getProperty("WEB_PASSWORD"));
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-		
+	public static Connection getWebConnection() {
 
-		// Getting Connection object
-		try {
-			webConnection = mds.getConnection();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		MysqlDataSource mds = null;
+		if(webConnection == null){
+			mds = new MysqlDataSource();
+			try {
+				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
+				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("WEB_PORT")));
+				mds.setDatabaseName(getPropertyFromConf().getProperty("WEB_DB_NAME"));
+				mds.setUser(getPropertyFromConf().getProperty("WEB_USER"));
+				mds.setPassword(getPropertyFromConf().getProperty("WEB_PASSWORD"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			// Getting Connection object
+			try {
+				webConnection = mds.getConnection();
+				return webConnection;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		return webConnection;
 
 	}
 
@@ -206,38 +228,22 @@ public class SqlUtility {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		String tempQuery = null;
+		// for MySQL databases
+		if (query.contains("severity") || query.contains("session") || query.contains("icmp"))
+			tempQuery = query + " Having connection_datetime > '" + time + "'";
+		else
+			tempQuery = query + " Where connection_datetime > '" + time + "'";
+
+		if (query.contains("as order_id"))
+			tempQuery = tempQuery + " order by order_id asc";
+
 		try {
+			System.out.println(tempQuery);
+			rs = stmt.executeQuery(tempQuery);
 
-			if (query.contains("as order_id")) {
-				System.out.println(query + "Where connection_datetime > '" + time + "' order by order_id asc");
-				rs = stmt.executeQuery(query + " Where connection_datetime > '" + time + "'");
-
-			} else {
-
-				System.out.println(query + " Where connection_datetime > '" + time + "'");
-				rs = stmt.executeQuery(query + " Where connection_datetime > '" + time + "'");
-			}
 		} catch (MySQLSyntaxErrorException e) {
-
-			if (query.contains("as order_id")) {
-				System.out.println(query + "Having connection_datetime > '" + time + "' order by order_id asc");
-				try {
-					rs = stmt.executeQuery(query + " Having connection_datetime > '" + time + "'");
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-			} else {
-
-				System.out.println(query + " Having connection_datetime > '" + time + "'");
-				try {
-					rs = stmt.executeQuery(query + " Having connection_datetime > '" + time + "'");
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
+			e.printStackTrace();
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
