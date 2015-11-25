@@ -10,96 +10,85 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
-
-import com.maxmind.geoip.LookupService;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author Waseem
- * This class is responsible to return the result set on the bases of time
- * and write the time of the last result in the file
+ * @author Waseem This class is responsible to return the result set on the
+ *         bases of time and write the time of the last result in the file
  *
  */
 public class IOFileUtility {
 
-	/**
-	 * 
-	 */
+	private static Logger log = LoggerFactory.getLogger(IOFileUtility.class);
+	// static constants for properties file path
+	public static final String STATE_PATH = System.getProperty("user.dir") + "/config/state.properties";
+	public static final String ARCHIVAL_PATH = System.getProperty("user.dir") + "/config/archivalAgent.properties";
 
-	private static final String BASE_PATH = System.getProperty("user.dir")+"/config/state.properties";
-	
-	public IOFileUtility() {
-		// TODO Auto-generated constructor stub
-	}
-	
-	
-	/**
-	 * This Function will write the time in to the file on the bases
-	 * @param time Which is basically time of last record that was inserted
-	 * @param source Which is basically the DataSource of which we are writing the time e.g MalwareIncident, SipIncident
-	 */
-	public static void writeTime(String source, String time){
-		Properties p = new Properties(); // Will create a properties object for load and store
-		FileInputStream input = null;   // Will load all configurations in the memory for updation
+	public static void writeProperty(String prop, String value, String propFile) {
+		Properties p = new Properties(); // Will create a properties object for
+											// load and store
+		FileInputStream input = null; // Will load all configurations in the
+										// memory for updation
 		FileOutputStream output = null; // Will provide the property for writing
-		/*
-		 * This Block will load the configuration file into the memory
-		 */
-		try {
-			input = new FileInputStream(BASE_PATH);
-			p.load(input);
-		} catch (IOException e) {
+		if (value != null) {
+			log.debug("Write value [{}], to property [{}] in file [{}]", value, prop, propFile);
+			/*
+			 * This Block will load the configuration file into the memory
+			 */
 
-			e.printStackTrace();
-		} finally {
-			
-			if(input != null){
-				try {
-					input.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+			try {
+				input = new FileInputStream(propFile);
+				p.load(input);
+			} catch (IOException e) {
+				log.error("Error occurred while trying to load properties file [{}] ", propFile, e);
+			} finally {
+
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {
+						log.error("Error occurred while trying to close FileInputStream ", e);
+					}
 				}
 			}
+			/*
+			 * This block will write the data into the property file
+			 */
+			try {
+				output = new FileOutputStream(propFile);
+				p.setProperty(prop, value);
+				p.store(output, null);
+			} catch (IOException io) {
+				log.error("Error occurred while trying to write to property file [{}]", propFile, io);
+			} finally {
+
+				if (output != null) {
+					try {
+						output.close();
+					} catch (IOException io) {
+						log.error("Error occurred while trying to close FileOutputStream ", io);
+					}
+				}
+			}
+			log.info("Successfully written value [{}], to property [{}] ", value, prop);
 		}
-		/*
-		 * This block will write the data into the property file
-		 */
-		try{
-			output = new FileOutputStream(BASE_PATH);
-			p.setProperty(source, time);
-			p.store(output, null);
-		} catch(IOException io){
-			
-			io.printStackTrace();
-		} finally {
-			
-			if(output != null){
-				try{
-					output.close();
-				} catch(IOException io){
-					io.printStackTrace();
-				}
-			}
+		else{
+			log.warn("Value to be written to property [{}] was NULL, so it remains unchanged.", prop);
 		}
 	}
-	
-	/**
-	 * This function will return the time on the bases of datasource parameter
-	 * @param source
-	 * @return time which is the time of last record that was inserted
-	 */
-	public static String readTime(String source){
-		
+
+	public static String readProperty(String source, String propFile) {
+		log.debug("Read property [{}], from property file [{}]", source, propFile);
 		BufferedReader br;
 		Properties p = new Properties();
 		try {
-			br = new BufferedReader(new FileReader(BASE_PATH));
+			br = new BufferedReader(new FileReader(propFile));
 			p.load(br);
-		} catch(FileNotFoundException e){
-			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			log.error("Error occurred while trying to read from property file [{}] ", propFile, e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error occurred while trying to read from property file [{}] ", propFile, e);
 		}
 		return p.getProperty(source);
 	}
