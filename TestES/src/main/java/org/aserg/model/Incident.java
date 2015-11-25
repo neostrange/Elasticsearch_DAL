@@ -1,10 +1,15 @@
 package org.aserg.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This is the main incident class which contains all the common elements found
  * in all its subtypes.
  */
 public class Incident {
+
+	private static Logger log = LoggerFactory.getLogger(Auth.class);
 
 	/**
 	 * The incident datetime.
@@ -41,7 +46,8 @@ public class Incident {
 
 	public Incident(String dateTime, String srcIP, int srcPort, String service, String dstIP, int dstPort,
 			String protocol, Origin org) {
-		super();
+		log.trace("Create new Incident instance with dateTime [{}], srcIP [{}], dstIP [{}], dstPort [{}] ", dateTime,
+				srcIP, dstIP, dstPort);
 		this.dateTime = dateTime;
 		this.srcIP = srcIP;
 		this.srcPort = srcPort;
@@ -53,10 +59,12 @@ public class Incident {
 	}
 
 	public String getDateTime() {
+		log.trace("Get DateTime, returns [{}]");
 		return dateTime;
 	}
 
 	public void setDateTime(String datetime) {
+		log.trace("Set DateTime to [{}]", datetime);
 		this.dateTime = datetime;
 	}
 
@@ -64,16 +72,18 @@ public class Incident {
 		return srcIP;
 	}
 
-	public void setSourceIP(String localHost) {
-		this.srcIP = localHost;
+	public void setSourceIP(String srcIP) {
+		log.trace("Set SourceIP to [{}]", srcIP);
+		this.srcIP = srcIP;
 	}
 
 	public int getSourcePort() {
 		return srcPort;
 	}
 
-	public void setSourcePort(int localPort) {
-		this.srcPort = localPort;
+	public void setSourcePort(int srcPort) {
+		log.trace("Set SourcePort to [{}]", srcPort);
+		this.srcPort = srcPort;
 	}
 
 	public String getService() {
@@ -81,6 +91,7 @@ public class Incident {
 	}
 
 	public void setService(String service) {
+		log.trace("Set Service to [{}]", service);
 		this.service = service;
 	}
 
@@ -88,16 +99,18 @@ public class Incident {
 		return dstIP;
 	}
 
-	public void setDestinationIP(String remoteHost) {
-		this.dstIP = remoteHost;
+	public void setDestinationIP(String dstIP) {
+		log.trace("Set DestinationIP to [{}]", dstIP);
+		this.dstIP = dstIP;
 	}
 
 	public int getDestinationPort() {
 		return dstPort;
 	}
 
-	public void setDestinationPort(int remotePort) {
-		this.dstPort = remotePort;
+	public void setDestinationPort(int dstPort) {
+		log.trace("Set dstPort to [{}]", dstPort);
+		this.dstPort = dstPort;
 	}
 
 	public String getProtocol() {

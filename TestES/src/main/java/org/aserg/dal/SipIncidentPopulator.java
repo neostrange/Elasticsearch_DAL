@@ -13,40 +13,47 @@ import org.aserg.model.SipIncident;
 import org.aserg.utility.EnrichmentUtility;
 import org.aserg.utility.IOFileUtility;
 import org.aserg.utility.SqlUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Waseem
  *
  */
-public class SipIncidentPopulator{
-	
+public class SipIncidentPopulator {
+
+	private static Logger log = LoggerFactory.getLogger(SipIncidentPopulator.class);
 
 	public List<SipIncident> populate() {
-		
+		log.info("Initiating SipIncident Population");
 		List<SipIncident> sipIncidentList = new ArrayList<SipIncident>();
+		String lastFetchTime = IOFileUtility.readProperty("sipTime", IOFileUtility.STATE_PATH);
 		SipIncident sipIncident;
+		log.debug("Run query to fetch sip records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
-				IOFileUtility.readTime("sipTime"));
+				lastFetchTime);
 		try {
 			while (rs.next()) {
-				// TODO enrichmentutil geolocation and populate origin
 				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
-				org = org == null? null: org;
+				org = org == null ? null : org;
 				String datetime = rs.getString("connection_datetime").replace(' ', 'T');
 				sipIncident = new SipIncident(datetime, rs.getString("remote_host"), rs.getInt("remote_port"),
 						rs.getString("connection_protocol"), rs.getString("local_host"), rs.getInt("local_port"),
 						rs.getString("connection_transport"), org, rs.getString("sip_command_call_id"),
 						rs.getString("sip_command_method"), rs.getString("sip_command_user_agent"));
-				
-				IOFileUtility.writeTime("sipTime", rs.getString("connection_datetime"));
+
+				IOFileUtility.writeProperty("sipTime", rs.getString("connection_datetime"), IOFileUtility.STATE_PATH);
 				sipIncidentList.add(sipIncident);
+				log.debug("Added SipIncident to list , connection [{}]", rs.getString("connection"));
 
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error occurred while trying to traverse through sip records ", e);
 		}
+		log.debug("Number of new sip incidents [{}], since last fetched at [{}] ", sipIncidentList.size(),
+				lastFetchTime);
 		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
+		log.info("SipIncident Population Successful");
 		return sipIncidentList;
 	}
 
