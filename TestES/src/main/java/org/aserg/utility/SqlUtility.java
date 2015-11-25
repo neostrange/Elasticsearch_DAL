@@ -62,12 +62,14 @@ public class SqlUtility {
 			+ "LEFT JOIN udphdr on (iphdr.cid = udphdr.cid AND iphdr.sid = udphdr.sid)  INNER JOIN signature on (event.signature = signature.sig_id) "
 			+ "LEFT JOIN sig_class on (signature.sig_class_id = sig_class.sig_class_id)";
 
-	public static final String SSH_INCIDENT_QUERY = " SELECT sessions.id as order_id, sensor, sessions.ip as remote_host, sensors.ip as localhost,"
+	public static final String SSH_INCIDENT_QUERY = " SELECT sessions.id as order_id, sessions.ip as remote_host,"
 			+ " starttime as connection_datetime, endtime, clients.version, auth.username, "
 			+ "auth.password,auth.success as auth_success,auth.timestamp as auth_timestamp, "
-			+ "input.input, input.success as input_success,input.timestamp as input_timestamp " + "FROM sessions "
-			+ "LEFT JOIN auth ON auth.session = sessions.id LEFT JOIN input ON input.session = sessions.id  LEFT JOIN clients ON clients.id = sessions.client "
-			+ "LEFT JOIN sensors on sensors.id = sessions.sensor ";
+			+ "input.input, input.success as input_success,input.timestamp as input_timestamp " 
+			+ "FROM sessions "
+			+ "LEFT JOIN auth ON auth.session = sessions.id "
+			+ "LEFT JOIN input ON input.session = sessions.id  "
+			+ "LEFT JOIN clients ON clients.id = sessions.client ";
 
 	public static final String WEB_INCIDENT_QUERY = "SELECT events.event_id as order_id,a_timestamp as connection_datetime,"
 			+ "INET_NTOA(a_client_ip) as client_ip,a_client_port,INET_NTOA(a_server_ip) as remote_host ,a_server_port,"
@@ -84,12 +86,11 @@ public class SqlUtility {
 			+ "INNER JOIN connections on (sip_commands.connection=connections.connection)";
 
 	public static final String SSH_MALWARE_INCIDENT_QUERY = "SELECT downloads.timestamp as connection_datetime, "
-			+ "downloads.outfile as binary, sessions.id, "
-			+ "sensors.ip as localhost, url, sessions.ip as remotehost FROM downloads "
-			+ "LEFT JOIN sessions on downloads.session = sessions.id "
-			+ "LEFT JOIN sensors on sensors.id = sessions.sensor ";
+			+ "downloads.outfile as payload, sessions.id, url, sessions.ip as remotehost "
+			+ "FROM downloads "
+			+ "LEFT JOIN sessions on downloads.session = sessions.id ";
 
-	final static String BASE_PATH = System.getProperty("user.dir") + "/config/db.properties";
+	final static String BASE_PATH = System.getProperty("user.dir") + "/config/archivalAgent.properties";
 	/**
 	 * This variable will create a connection with Sqlite and mysql
 	 */
@@ -108,18 +109,28 @@ public class SqlUtility {
 	public static Connection getDionaeaConnection() {
 
 		try {
-			if(dionaeaConnection == null){
+			if (dionaeaConnection == null || dionaeaConnection.isClosed()) {
 
 				Class.forName(getPropertyFromConf().getProperty("SQLITE_DRIVER"));
-				dionaeaConnection = DriverManager.getConnection(getPropertyFromConf().getProperty("DATABASE_DIONAEA"));
-				System.out.println(dionaeaConnection);
+				dionaeaConnection = DriverManager.getConnection(getPropertyFromConf().getProperty("DATABASE_DIONAEA"),"PRAGMA journal_mode=WAL", null);
 				return dionaeaConnection;
 			}
 		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
+			if (e.getMessage().contains("BUSY"))
+				e.printStackTrace();
 		}
-		System.out.println(dionaeaConnection);
 		return dionaeaConnection;
+	}
+
+	public static void closeConnection(Connection con) {
+		if (con != null) {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -132,26 +143,21 @@ public class SqlUtility {
 	public static Connection getKippoConnection() {
 
 		MysqlDataSource mds = null;
-		if(kippoConnection == null){
-			try {
+		try {
+			if (kippoConnection == null || kippoConnection.isClosed()) {
 				mds = new MysqlDataSource();
 				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
 				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("SSH_PORT")));
 				mds.setDatabaseName(getPropertyFromConf().getProperty("SSH_DB_NAME"));
 				mds.setUser(getPropertyFromConf().getProperty("SSH_USER"));
 				mds.setPassword(getPropertyFromConf().getProperty("SSH_PASSWORD"));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
-			// Getting Connection object
-			try {
 				kippoConnection = mds.getConnection();
-				return kippoConnection;
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
 			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return kippoConnection;
 
@@ -160,26 +166,20 @@ public class SqlUtility {
 	public static Connection getNetConnection() {
 
 		MysqlDataSource mds = null;
-		if(netConnection == null){
-			mds = new MysqlDataSource();
-			try {
+		try {
+			if (netConnection == null || netConnection.isClosed()) {
+				mds = new MysqlDataSource();
 				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
 				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("NETWORK_PORT")));
 				mds.setDatabaseName(getPropertyFromConf().getProperty("NETWORK_DB_NAME"));
 				mds.setUser(getPropertyFromConf().getProperty("NETWORK_USER"));
 				mds.setPassword(getPropertyFromConf().getProperty("NETWORK_PASSWORD"));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			// Getting Connection object
-			try {
 				netConnection = mds.getConnection();
 				return netConnection;
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return netConnection;
 
@@ -188,26 +188,23 @@ public class SqlUtility {
 	public static Connection getWebConnection() {
 
 		MysqlDataSource mds = null;
-		if(webConnection == null){
-			mds = new MysqlDataSource();
-			try {
+		try {
+			if (webConnection == null || webConnection.isClosed()) {
+				mds = new MysqlDataSource();
+
 				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
 				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("WEB_PORT")));
 				mds.setDatabaseName(getPropertyFromConf().getProperty("WEB_DB_NAME"));
 				mds.setUser(getPropertyFromConf().getProperty("WEB_USER"));
 				mds.setPassword(getPropertyFromConf().getProperty("WEB_PASSWORD"));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
-			// Getting Connection object
-			try {
 				webConnection = mds.getConnection();
 				return webConnection;
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
 			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return webConnection;
 

@@ -44,6 +44,7 @@ public class MssqlIncidentPopulator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
 		return mssqlIncidentList;
 	}
 

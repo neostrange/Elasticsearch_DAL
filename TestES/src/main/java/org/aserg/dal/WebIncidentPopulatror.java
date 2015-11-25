@@ -80,6 +80,7 @@ public class WebIncidentPopulatror {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		SqlUtility.closeConnection(SqlUtility.getWebConnection());
 		return webIncidentList;
 	}
 	

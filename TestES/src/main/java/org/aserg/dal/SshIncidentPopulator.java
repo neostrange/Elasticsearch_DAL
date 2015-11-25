@@ -44,7 +44,7 @@ public class SshIncidentPopulator {
 							rs.getString("auth_timestamp").replace(' ', 'T'));
 				}
 
-				if (rs.getString("id").equals(prev)) {
+				if (rs.getString("order_id").equals(prev)) {
 
 					// if prev auth attempt in the session was successful
 					if (inputList != null) {
@@ -77,7 +77,8 @@ public class SshIncidentPopulator {
 					String etime = rs.getString("endtime") != null ? rs.getString("endtime").replace(' ', 'T') : null;
 					String client = rs.getString("version");
 					String remotehost = rs.getString("remote_host");
-					ssh = new SshIncident(stime, remotehost, 22, "sshd", rs.getString("local_host"), 22, "tcp", org, rs.getString("order_id"), null, etime, null, client);
+					ssh = new SshIncident(stime, remotehost, 22, "sshd", SqlUtility.getPropertyFromConf().getProperty("HOST"), 
+							22, "tcp", org, rs.getString("order_id"), null, etime, null, client);
 					IOFileUtility.writeTime("sshTime", rs.getString("connection_datetime"));
 					// in case there are auth attempts
 					if (auth != null) {
@@ -96,10 +97,11 @@ public class SshIncidentPopulator {
 				}
 
 				if (rs.isLast() && !sshIncidentList.contains(ssh)) {
+					System.out.println("Last Record");
 					sshIncidentList.add(ssh);
 				}
 
-				prev = rs.getString("id");
+				prev = rs.getString("order_id");
 				input = null;
 				auth = null;
 
@@ -108,7 +110,8 @@ public class SshIncidentPopulator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		SqlUtility.closeConnection(SqlUtility.getKippoConnection());
+		return sshIncidentList;
 	}
 
 }

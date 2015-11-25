@@ -62,6 +62,7 @@ public class MysqlIncidentPopulator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
 
 		return mysqlIncidentList;
 	}
