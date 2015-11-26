@@ -30,6 +30,7 @@ public class SshIncidentPopulator {
 		String lastFetchTime = IOFileUtility.readProperty("sshTime", IOFileUtility.STATE_PATH);
 		String stime = null, etime = null;
 		Origin org = null;
+		EnrichmentUtility.initLookupService();
 		log.info("Run query to fetch ssh records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, SqlUtility.getKippoConnection(),
 				lastFetchTime);
@@ -121,6 +122,7 @@ public class SshIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through ssh records ", e);
 		}
+		EnrichmentUtility.closeLookupService();
 		IOFileUtility.writeProperty("sshTime",stime,
 				IOFileUtility.STATE_PATH);
 		SqlUtility.closeConnection(SqlUtility.getKippoConnection());

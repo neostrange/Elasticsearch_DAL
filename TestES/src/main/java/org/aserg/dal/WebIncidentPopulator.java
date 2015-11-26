@@ -41,6 +41,7 @@ public class WebIncidentPopulator {
 		log.debug("Run query to fetch web records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.WEB_INCIDENT_QUERY, SqlUtility.getWebConnection(),
 				lastFetchTime);
+		EnrichmentUtility.initLookupService();
 		String prev = null;
 		try {
 			while (rs.next()) {
@@ -93,6 +94,7 @@ public class WebIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through web records ", e);
 		}
+		EnrichmentUtility.closeLookupService();
 		SqlUtility.closeConnection(SqlUtility.getWebConnection());
 		log.debug("Number of new web incidents [{}], since last fetched at [{}] ", webIncidentList.size(),
 				lastFetchTime);

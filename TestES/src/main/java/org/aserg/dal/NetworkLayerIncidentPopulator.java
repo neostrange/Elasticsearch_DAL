@@ -32,10 +32,11 @@ public class NetworkLayerIncidentPopulator {
 		log.debug("Run query to fetch network records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.getNetConnection(),
 				lastFetchTime);
-
+		EnrichmentUtility.initLookupService();
 		String type = null;
 		String transport = null;
 		String protocol = null;
+		Origin org = null;
 		try {
 			while (rs.next()) {
 				int localPort = rs.getInt("tcp_local_port") == 0 ? rs.getInt("udp_local_port")
@@ -58,7 +59,7 @@ public class NetworkLayerIncidentPopulator {
 					protocol = "protocol";
 
 				}
-				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
+				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 				org = org == null ? null : org;
 				networkLayerIncident = new NetworkLayerIncident(rs.getString("connection_datetime").replace(' ', 'T'),
 						rs.getString("remote_host"), remotePort, protocol, rs.getString("local_host"), localPort,
@@ -74,6 +75,7 @@ public class NetworkLayerIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through network ResultSet", e);
 		}
+		EnrichmentUtility.closeLookupService();
 		SqlUtility.closeConnection(SqlUtility.getNetConnection());
 		log.debug("Number of new network incidents [{}], since last fetched at [{}] ", networkLayerIncidentList.size(),
 				lastFetchTime);

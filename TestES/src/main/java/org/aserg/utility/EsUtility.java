@@ -91,7 +91,7 @@ public class EsUtility {
 			log.info("Loading ElasticSearch properties from file");
 		} catch (IOException e) {
 			log.error("Error occurred while trying to read from ElasticSearch properties file", e);
-		} 
+		}
 
 		// initialize variables from properties file
 		DEFAULT_HOSTNAME = prop.getProperty("es.hostname");
@@ -109,15 +109,24 @@ public class EsUtility {
 	 */
 	private final static BulkProcessor.Listener listener = new BulkProcessor.Listener() {
 
+		/**
+		 * Right before the bulk is executed
+		 */
 		public void beforeBulk(long executionId, BulkRequest request) {
-			log.info("Bulk flush triggered [{}], where number of requests is [{}]",
-					executionId, request.numberOfActions());
+			log.info("Bulk flush triggered [{}], where number of requests is [{}]", executionId,
+					request.numberOfActions());
 		}
 
+		/**
+		 * In case bulk execution failed
+		 */
 		public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
 			log.error("Error during Bulk insertion: [{}]", executionId, failure);
 		}
 
+		/**
+		 * In case of successful Bulk execution
+		 */
 		public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
 			if (response.hasFailures()) {
 				throw new RuntimeException(response.buildFailureMessage());
@@ -153,8 +162,7 @@ public class EsUtility {
 			// TODO handle exception by waiting for connection
 		}
 		bulkProcessor = BulkProcessor.builder(client, listener).setBulkActions(DEFAULT_BULK_ACTIONS)
-				.setConcurrentRequests(DEFAULT_CONCURRENT_REQUESTS).setFlushInterval(DEFAULT_FLUSH_INTERVAL)
-				.setBulkSize(DEFAULT_BULK_SIZE).build();
+				.setConcurrentRequests(DEFAULT_CONCURRENT_REQUESTS).setFlushInterval(DEFAULT_FLUSH_INTERVAL).build();
 		log.info("BulkProcessor Initiated");
 
 	}

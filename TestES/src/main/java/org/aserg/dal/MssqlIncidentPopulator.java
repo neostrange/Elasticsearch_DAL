@@ -23,25 +23,30 @@ public class MssqlIncidentPopulator {
 		MssqlIncident mssqlIncident;
 		String lastFetchTime = IOFileUtility.readProperty("mssqlTime", IOFileUtility.STATE_PATH);
 		log.debug("Run query to fetch mssql records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(), lastFetchTime);
-
+		EnrichmentUtility.initLookupService();
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
+				lastFetchTime);
+		IOFileUtility.writeProperty("mssqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
+		Origin org = null;
 		try {
 			while (rs.next()) {
-				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
-				org = org == null? null: org;				
-				mssqlIncident = new MssqlIncident(rs.getString("connection_datetime").replace(' ', 'T'),
-						rs.getString("remote_host"), rs.getInt("remote_port"), rs.getString("connection_protocol"),
-						rs.getString("local_host"), rs.getInt("local_port"), rs.getString("connection_transport"), org,
+				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
+				org = org == null ? null : org;
+				lastFetchTime = rs.getString("connection_datetime");
+				mssqlIncident = new MssqlIncident(lastFetchTime.replace(' ', 'T'), rs.getString("remote_host"),
+						rs.getInt("remote_port"), rs.getString("connection_protocol"), rs.getString("local_host"),
+						rs.getInt("local_port"), rs.getString("connection_transport"), org,
 						rs.getString("mssql_fingerprint_cltintname"), rs.getString("cmd"), rs.getString("status"),
 						rs.getString("mssql_fingerprint_hostname"));
 				mssqlIncidentList.add(mssqlIncident);
 				log.debug("Added MssqlIncident to list, connection [{}]", rs.getString("connection"));
-				IOFileUtility.writeProperty("mssqlTime", rs.getString("connection"), IOFileUtility.STATE_PATH);
 			}
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mssql records", e);
 		}
-		log.debug("Number of new mssql incidents [{}], since last fetched at [{}] ", mssqlIncidentList.size(), lastFetchTime);
+		EnrichmentUtility.closeLookupService();
+		log.debug("Number of new mssql incidents [{}], since last fetched at [{}] ", mssqlIncidentList.size(),
+				lastFetchTime);
 		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
 		log.info("MssqlIncident Population Successful");
 		return mssqlIncidentList;
