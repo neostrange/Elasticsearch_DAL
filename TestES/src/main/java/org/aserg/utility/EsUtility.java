@@ -1,8 +1,9 @@
 package org.aserg.utility;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +22,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
@@ -40,7 +40,7 @@ import com.google.gson.Gson;
  */
 public class EsUtility {
 
-	private static ESLogger logger;
+	private static ESLogger log;
 	private static TransportClient client;
 
 	/**
@@ -83,18 +83,15 @@ public class EsUtility {
 	 */
 	static {
 
-		logger = Loggers.getLogger(EsUtility.class);
+		log = Loggers.getLogger(EsUtility.class);
 		// Load ES Properties
 		Properties prop = new Properties();
 		try {
 			prop.load(new FileInputStream("config/es.properties"));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.info("Loading ElasticSearch properties from file");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			log.error("Error occurred while trying to read from ElasticSearch properties file", e);
+		} 
 
 		// initialize variables from properties file
 		DEFAULT_HOSTNAME = prop.getProperty("es.hostname");
@@ -113,19 +110,19 @@ public class EsUtility {
 	private final static BulkProcessor.Listener listener = new BulkProcessor.Listener() {
 
 		public void beforeBulk(long executionId, BulkRequest request) {
-			logger.info("Bulk flush triggered [" + executionId + "], where number of requests is "
-					+ request.numberOfActions());
+			log.info("Bulk flush triggered [{}], where number of requests is [{}]",
+					executionId, request.numberOfActions());
 		}
 
 		public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-			logger.error("Error during bulk insert: " + executionId, failure);
+			log.error("Error during Bulk insertion: [{}]", executionId, failure);
 		}
 
 		public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
 			if (response.hasFailures()) {
 				throw new RuntimeException(response.buildFailureMessage());
 			} else {
-				logger.info("Bulk execution completed [" + executionId + "].\n" + "Took (ms): "
+				log.info("Bulk execution completed [" + executionId + "].\n" + "Took (ms): "
 						+ response.getTookInMillis() + "\n" + "Failures: " + response.hasFailures() + "\n" + "Count: "
 						+ response.getItems().length);
 			}
@@ -137,18 +134,28 @@ public class EsUtility {
 	 * for requests
 	 */
 	public static void initBulkProcessor() {
-		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", DEFAULT_CLUSTERNAME).build();
-		client = new TransportClient(settings);
+		log.info("Initializing BulkProcessor");
+		Settings settings = Settings.settingsBuilder().put("cluster.name", DEFAULT_CLUSTERNAME).build();
+		client = TransportClient.builder().settings(settings).build();
 		try {
-			client.addTransportAddress(new InetSocketTransportAddress(DEFAULT_HOSTNAME, DEFAULT_PORT));
+			try {
+				client.addTransportAddress(
+						new InetSocketTransportAddress(InetAddress.getByName(DEFAULT_HOSTNAME), DEFAULT_PORT));
+			} catch (UnknownHostException e) {
+				log.error("Error occurred while trying to create TransportClient using IP [{}], Port [{}]",
+						DEFAULT_HOSTNAME, DEFAULT_PORT, e);
+			}
+			log.info("ElasticSearch TransportClient Initiated, where IP [{}], Port [{}]", DEFAULT_HOSTNAME,
+					DEFAULT_PORT);
 		} catch (ConnectTransportException e) {
-			logger.error("Error occurred while trying to connect to ElasticSearch at IP [{}] and Port [{}]",
+			log.error("Error occurred while trying to connect to ElasticSearch at IP [{}] and Port [{}]",
 					DEFAULT_HOSTNAME, DEFAULT_PORT);
 			// TODO handle exception by waiting for connection
 		}
 		bulkProcessor = BulkProcessor.builder(client, listener).setBulkActions(DEFAULT_BULK_ACTIONS)
 				.setConcurrentRequests(DEFAULT_CONCURRENT_REQUESTS).setFlushInterval(DEFAULT_FLUSH_INTERVAL)
 				.setBulkSize(DEFAULT_BULK_SIZE).build();
+		log.info("BulkProcessor Initiated");
 
 	}
 
@@ -158,15 +165,29 @@ public class EsUtility {
 	 * @throws InterruptedException
 	 */
 	public static void closeBulkProcessor() {
+		log.info("Trying to close BulkProcessor");
 		bulkProcessor.flush();
 		try {
 			bulkProcessor.awaitClose(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			logger.error("Error occurred while trying to close BulkProcessor ", e);
+			log.error("Error occurred while trying to close BulkProcessor ", e);
 		}
 		client.close();
+		log.info("BulkProcessor Closed");
 	}
 
+	public static void pushDocument(String doc, String index, String type) {
+		// check if ES nodes available
+		if (client.listedNodes().size() > 0) {
+			log.info("Added doc into BulkProcessor index [{}], type [{}]", index, type);
+			bulkProcessor.add(new IndexRequest(index, type).source(doc));
+
+		} else {
+			log.warn("Couldn't find any available ElasticSearch nodes for pushing document");
+			// TODO try to look for available nodes/ establish connection
+			// again...
+		}
+	}
 
 	public static void pushMalwareData(List<MalwareIncident> list, String index, String type) {
 		initBulkProcessor();
