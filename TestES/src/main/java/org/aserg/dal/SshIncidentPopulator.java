@@ -28,10 +28,12 @@ public class SshIncidentPopulator {
 		List<Input> inputList = null;
 		Input input = null;
 		String lastFetchTime = IOFileUtility.readProperty("sshTime", IOFileUtility.STATE_PATH);
+		String lastTime = lastFetchTime ;
 		log.info("Run query to fetch ssh records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, SqlUtility.getKippoConnection(),
 				lastFetchTime);
 		String prev = null;
+		String localhost = IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH);
 		boolean authenticated = false;
 		try {
 			log.info("SSH traversing started");
@@ -86,10 +88,9 @@ public class SshIncidentPopulator {
 					String client = rs.getString("version");
 					String remotehost = rs.getString("remote_host");
 					ssh = new SshIncident(stime, remotehost, 22, "sshd",
-							IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH), 22, "tcp", org,
+							localhost, 22, "tcp", org,
 							rs.getString("order_id"), null, etime, null, client);
-					IOFileUtility.writeProperty("sshTime", rs.getString("connection_datetime"),
-							IOFileUtility.STATE_PATH);
+					lastTime = rs.getString("connection_datetime");
 					// in case there are auth attempts
 					if (rs.getString("auth_timestamp") != null) {
 						auth = new Auth(rs.getString("username"), rs.getString("password"),
@@ -116,7 +117,6 @@ public class SshIncidentPopulator {
 					System.out.println("Last Record");
 					sshIncidentList.add(ssh);
 				}
-
 				prev = rs.getString("order_id");
 				input = null;
 				auth = null;
@@ -125,6 +125,8 @@ public class SshIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through ssh records ", e);
 		}
+		IOFileUtility.writeProperty("sshTime", lastTime,
+				IOFileUtility.STATE_PATH);
 		SqlUtility.closeConnection(SqlUtility.getKippoConnection());
 		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", sshIncidentList.size(),
 				lastFetchTime);
