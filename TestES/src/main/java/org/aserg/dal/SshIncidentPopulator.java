@@ -28,8 +28,10 @@ public class SshIncidentPopulator {
 		String prev = null;
 		boolean authenticated = false;
 		try {
+			int count=1;
 			while (rs.next()) {
 
+				System.out.println("count" + count++);
 				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 				org = org == null? null: org;
 				if (rs.getString("input_timestamp") != null) {
