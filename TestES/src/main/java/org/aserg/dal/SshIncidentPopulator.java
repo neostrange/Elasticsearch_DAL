@@ -28,16 +28,15 @@ public class SshIncidentPopulator {
 		List<Input> inputList = null;
 		Input input = null;
 		String lastFetchTime = IOFileUtility.readProperty("sshTime", IOFileUtility.STATE_PATH);
-		log.debug("Run query to fetch ssh records");
+		log.info("Run query to fetch ssh records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, SqlUtility.getKippoConnection(),
 				lastFetchTime);
 		String prev = null;
 		boolean authenticated = false;
 		try {
-			int count=1;
+			log.info("SSH traversing started");
 			while (rs.next()) {
-
-				System.out.println("count" + count++);
+				
 				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 				org = org == null ? null : org;
 				if (rs.getString("input_timestamp") != null) {
@@ -54,7 +53,7 @@ public class SshIncidentPopulator {
 						ssh.setInputList(inputList);
 
 					}
-					if (!authenticated && rs.getString("auth_timestamp") != null) {
+					if (rs.getString("auth_timestamp") != null && !authenticated) {
 						auth = new Auth(rs.getString("username"), rs.getString("password"),
 								Boolean.valueOf(rs.getInt("auth_success") == 1 ? "true" : "false"),
 								rs.getString("auth_timestamp").replace(' ', 'T'));
@@ -92,7 +91,10 @@ public class SshIncidentPopulator {
 					IOFileUtility.writeProperty("sshTime", rs.getString("connection_datetime"),
 							IOFileUtility.STATE_PATH);
 					// in case there are auth attempts
-					if (auth != null) {
+					if (rs.getString("auth_timestamp") != null) {
+						auth = new Auth(rs.getString("username"), rs.getString("password"),
+								Boolean.valueOf(rs.getInt("auth_success") == 1 ? "true" : "false"),
+								rs.getString("auth_timestamp").replace(' ', 'T'));
 						authList = new ArrayList<Auth>();
 						authList.add(auth);
 						ssh.setAuthList(authList);
