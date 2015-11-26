@@ -127,7 +127,7 @@ public class SshIncidentPopulator {
 		}
 		IOFileUtility.writeProperty("sshTime", lastTime,
 				IOFileUtility.STATE_PATH);
-		SqlUtility.closeConnection(SqlUtility.getKippoConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getKippoConnection());
 		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", sshIncidentList.size(),
 				lastFetchTime);
 		log.info("SshIncident Population Successful");

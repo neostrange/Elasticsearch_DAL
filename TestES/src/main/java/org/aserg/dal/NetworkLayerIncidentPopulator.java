@@ -74,7 +74,7 @@ public class NetworkLayerIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through network ResultSet", e);
 		}
-		SqlUtility.closeConnection(SqlUtility.getNetConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getNetConnection());
 		log.debug("Number of new network incidents [{}], since last fetched at [{}] ", networkLayerIncidentList.size(),
 				lastFetchTime);
 		log.info("NetworkLayerIncident Population Successful");

@@ -1,22 +1,64 @@
 package org.aserg.utility;
 
-
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+/**
+ * <h1> SqlUtility </h1>
+ *  <p>
+ * This class is responsible for creating, Initializing and providing Connection and ResultSet of the
+ * Databases on the bases of Query Accessed.
+ * <p>
+ * Class has Queries that are accessed by other classes to get the results
+ * 
+ * @author Waseem
+ * @version 0.1
+ * @since 26-11-15 21:36
+ */
 public class SqlUtility {
 
-	private static Logger log = LoggerFactory.getLogger(SqlUtility.class);
+	/**
+	 * This variable will provide the logging of the complete class
+	 */
+	private static Logger log = LoggerFactory.getLogger(SqlUtility.class); 
 
+	/**
+	 * These variable will create a connection with Sqlite and mysql
+	 * dionaeaConnection will provide connection to the logsql.sqlite database of Dionaea
+	 * kippo,web,net will provide the connection of the mysql databases
+	 */
+	public static Connection dionaeaConnection = null;
+	public static Connection kippoConnection = null;
+	public static Connection webConnection = null;
+	public static Connection netConnection = null;
+	
+	/**
+	 * For creating the statement for the resultset 
+	 * @see http://www.careerride.com/JDBC-PreparedStatement.aspx
+	 */
+	private static PreparedStatement preparedStatement = null;
 
+	/**
+	 * <p>
+	 * For executing the queries
+	 */
+	private static ResultSet resultSet = null;
+	
+
+	/**
+	 * 
+	 * <p>
+	 * These are the list of queries for acquiring the data
+	 */
 	public static final String MALWARE_INCIDENT_QUERY = "select downloads.download as order_id, remote_host,local_port, connection_protocol,"
 			+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime,"
 			+ "connection_transport,local_host,remote_port,download_url,download_md5_hash," + "virustotal_permalink,"
@@ -87,32 +129,29 @@ public class SqlUtility {
 			+ "LEFT JOIN sessions on downloads.session = sessions.id ";
 
 	/**
-	 * This variable will create a connection with Sqlite and mysql
-	 */
-	public static Connection dionaeaConnection = null;
-	public static Connection kippoConnection = null;
-	public static Connection webConnection = null;
-	public static Connection netConnection = null;
-
-	/**
-	 * Block will initialize the connection to the Sqlite Database
+	 * <h2>getDionaeaConnection</h2>
+	 * <p>
+	 * This function will initialize the connection to the Sqlite Database
+	 * This function will be called by all populators that need connection 
+	 * with logsql.sqlite database 
 	 * 
-	 * @exception ClassNotFoundException,
-	 *                SQLException
-	 * @return Nothing
+	 * @exception ClassNotFoundException,SQLException
+	 * @return dionaeaConnection
 	 */
 	public static Connection getDionaeaConnection() {
 		log.info("Trying to get Dionaea Connection...");
 		try {
 			if (dionaeaConnection == null || dionaeaConnection.isClosed()) {
 
-
-				Class.forName(IOFileUtility.readProperty("SQLITE_DRIVER", IOFileUtility.ARCHIVAL_PATH));dionaeaConnection = DriverManager.getConnection(
-						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH), "PRAGMA journal_mode=WAL", null);
 				Class.forName(IOFileUtility.readProperty("SQLITE_DRIVER", IOFileUtility.ARCHIVAL_PATH));
 				dionaeaConnection = DriverManager.getConnection(
-						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH), "PRAGMA journal_mode=WAL", null);
-//github.com/neostrange/Elasticsearch_DAL.git
+						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH),
+						"PRAGMA journal_mode=WAL", null);
+				Class.forName(IOFileUtility.readProperty("SQLITE_DRIVER", IOFileUtility.ARCHIVAL_PATH));
+				dionaeaConnection = DriverManager.getConnection(
+						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH),
+						"PRAGMA journal_mode=WAL", null);
+				// github.com/neostrange/Elasticsearch_DAL.git
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			if (e.getMessage().contains("BUSY"))
@@ -124,24 +163,14 @@ public class SqlUtility {
 		return dionaeaConnection;
 	}
 
-	public static void closeConnection(Connection con) {
-		log.info("Trying to close Dionaea Connection...");
-		if (con != null) {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.error("Error occurred while trying to close Dionaea connection ", e);
-			}
-		}
-		log.info("Dionaea Connection Closed");
-	}
-
 	/**
-	 * Static Block will initialize the connection to the Mysql Database
+	 * <h2> getKippoConnection </h2>
+	 * Function will initialize the connection to the Kippo mysql Database
 	 * MysqlDataSource is reciprocal of DriverManager
+	 * @see https://docs.oracle.com/javase/tutorial/jdbc/basics/sqldatasources.html
 	 * 
 	 * @exception SqlException
-	 * @return Nothing
+	 * @return KippoConnection
 	 */
 	public static Connection getKippoConnection() {
 		log.info("Trying to get Kippo Connection...");
@@ -150,7 +179,8 @@ public class SqlUtility {
 			if (kippoConnection == null || kippoConnection.isClosed()) {
 				mds = new MysqlDataSource();
 				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPortNumber(Integer.parseInt(IOFileUtility.readProperty("SSH_PORT", IOFileUtility.ARCHIVAL_PATH)));
+				mds.setPortNumber(
+						Integer.parseInt(IOFileUtility.readProperty("SSH_PORT", IOFileUtility.ARCHIVAL_PATH)));
 				mds.setDatabaseName(IOFileUtility.readProperty("SSH_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
 				mds.setUser(IOFileUtility.readProperty("SSH_USER", IOFileUtility.ARCHIVAL_PATH));
 				mds.setPassword(IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
@@ -164,6 +194,12 @@ public class SqlUtility {
 		return kippoConnection;
 
 	}
+	
+	/**
+	 * <h2> getNetConnection </h2>
+	 * Function will initialize the connection to the Mysql Database Snorby
+	 * @return netConnection
+	 */
 
 	public static Connection getNetConnection() {
 		log.info("Trying to get Network Connection...");
@@ -172,7 +208,8 @@ public class SqlUtility {
 			if (netConnection == null || netConnection.isClosed()) {
 				mds = new MysqlDataSource();
 				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPortNumber(Integer.parseInt(IOFileUtility.readProperty("NETWORK_PORT", IOFileUtility.ARCHIVAL_PATH)));
+				mds.setPortNumber(
+						Integer.parseInt(IOFileUtility.readProperty("NETWORK_PORT", IOFileUtility.ARCHIVAL_PATH)));
 				mds.setDatabaseName(IOFileUtility.readProperty("NETWORK_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
 				mds.setUser(IOFileUtility.readProperty("NETWORK_USER", IOFileUtility.ARCHIVAL_PATH));
 				mds.setPassword(IOFileUtility.readProperty("NETWORK_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
@@ -186,6 +223,11 @@ public class SqlUtility {
 
 	}
 
+	/**
+	 * <h2> getWebConnection </h2>
+	 * Function will initialize the connection to the Mysql Database Waffle
+	 * @return netConnection
+	 */
 	public static Connection getWebConnection() {
 		log.info("Trying to get Web Connection...");
 		MysqlDataSource mds = null;
@@ -194,7 +236,8 @@ public class SqlUtility {
 				mds = new MysqlDataSource();
 				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
 				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPortNumber(Integer.parseInt(IOFileUtility.readProperty("WEB_PORT", IOFileUtility.ARCHIVAL_PATH)));
+				mds.setPortNumber(
+						Integer.parseInt(IOFileUtility.readProperty("WEB_PORT", IOFileUtility.ARCHIVAL_PATH)));
 				mds.setDatabaseName(IOFileUtility.readProperty("WEB_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
 				mds.setUser(IOFileUtility.readProperty("WEB_USER", IOFileUtility.ARCHIVAL_PATH));
 				mds.setPassword(IOFileUtility.readProperty("WEB_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
@@ -207,46 +250,72 @@ public class SqlUtility {
 		return webConnection;
 
 	}
+	
+	/**
+	 * <h2> closeDbInstances </h2>
+	 * <p>
+	 * Function will close all the instances of databases i-e ResultSet, Statement, Connection
+	 * will test whether the connections, statement and connection are initialized
+	 * Need to close in the sequence (1)ResultSet (2)Statement (3) Connection   
+	 * @param con
+	 */
+	public static void closeDbInstances(Connection con) {
+		log.info("Trying to close Dionaea Connection...");
+		if (con != null && preparedStatement != null && resultSet != null) {
+			try {
+				resultSet.close();
+				preparedStatement.close();
+				con.close();
+			} catch (SQLException e) {
+				log.error("Error occurred while trying to close Dionaea connection ", e);
+			}
+		}
+		log.info("Dionaea Connection Closed");
+	}
 
 	/**
-	 * Function will return the resultset on the bases of query
+	 * Function will return the resultset on the bases of query, time.
+	 * Function tests whether the called database id mysql or sqlite 
+	 * If function finds order_id its orders the results accordingly
 	 * 
-	 * @param query
-	 * @return rs
+	 * @param query, con, time
+	 * @return resultSet
 	 */
 	public static ResultSet getResultSet(String query, Connection con, String time) {
-		log.info("Trying to get ResultSet for time [{}] and query [{}] ", time, query);
-		ResultSet rs = null;
-		Statement stmt = null;
+
 		String schema = null;
-		try {
-			stmt = con.createStatement();
-			schema = con.getSchema();
-		} catch (SQLException e1) {
-			log.error("Error occurred while trying to create SQL Statement ", e1);
-		}
 		String tempQuery = null;
 		// for MySQL databases
+
 		if (query.contains("severity") || query.contains("session") || query.contains("icmp"))
-			tempQuery = query + " Having connection_datetime > '" + time + "'";
+			tempQuery = query + " Having connection_datetime > ?";
 		else
-			tempQuery = query + " Where connection_datetime > '" + time + "'";
+			tempQuery = query + " Where connection_datetime > ?";
 
 		if (query.contains("as order_id"))
 			tempQuery = tempQuery + " order by order_id asc";
 
 		try {
-			log.debug("Query [{}] to be executed in database [{}] ", tempQuery, schema);
-			rs = stmt.executeQuery(tempQuery);
+			preparedStatement = con.prepareStatement(tempQuery);
+			preparedStatement.setString(1, time);
+
+			// schema = con.getSchema();
+		} catch (SQLException e1) {
+			log.error("Error occurred while trying to create SQL Statement ", e1);
+		}
+
+		try {
+			log.info("Query [{}] to be executed in database", tempQuery);
+			resultSet = preparedStatement.executeQuery();
 
 		} catch (MySQLSyntaxErrorException e) {
-			log.error("Error occurred while trying to execute query '{}' in database {} ", tempQuery, schema, e);
+			log.error("Error occurred while trying to execute query '{}' in database ", tempQuery, e);
 
 		} catch (SQLException e) {
-			log.error("Error occurred while trying to execute query '{}' in database {} ", tempQuery, schema, e);
+			log.error("Error occurred while trying to execute query '{}' in database ", tempQuery, e);
 		}
 		log.info("Query executed successfully");
-		return rs;
+		return resultSet;
 	}
 
 }

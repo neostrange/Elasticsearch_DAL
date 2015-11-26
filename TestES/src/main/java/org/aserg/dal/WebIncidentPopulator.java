@@ -93,7 +93,7 @@ public class WebIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through web records ", e);
 		}
-		SqlUtility.closeConnection(SqlUtility.getWebConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getWebConnection());
 		log.debug("Number of new web incidents [{}], since last fetched at [{}] ", webIncidentList.size(),
 				lastFetchTime);
 		log.info("WebIncident Population Successful");

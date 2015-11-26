@@ -10,6 +10,7 @@ import org.aserg.dal.NetworkLayerIncidentPopulator;
 import org.aserg.dal.SipIncidentPopulator;
 import org.aserg.dal.SshIncidentPopulator;
 import org.aserg.dal.WebIncidentPopulator;
+import org.aserg.utility.EnrichmentUtility;
 import org.aserg.utility.EsUtility;
 import org.aserg.utility.IOFileUtility;
 import org.slf4j.Logger;
@@ -105,6 +106,7 @@ public class ArchivalAgent {
 				log.warn("Network State Property is [OFF]");
 
 		}
+		//EnrichmentUtility.getOrigin("91.244.37.15");
 
 	}
 

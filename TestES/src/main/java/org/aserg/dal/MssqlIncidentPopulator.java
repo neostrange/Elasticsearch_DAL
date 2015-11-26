@@ -42,7 +42,7 @@ public class MssqlIncidentPopulator {
 			log.error("Error occurred while trying to traverse through mssql records", e);
 		}
 		log.debug("Number of new mssql incidents [{}], since last fetched at [{}] ", mssqlIncidentList.size(), lastFetchTime);
-		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
 		log.info("MssqlIncident Population Successful");
 		return mssqlIncidentList;
 	}

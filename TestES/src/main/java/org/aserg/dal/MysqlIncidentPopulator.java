@@ -72,7 +72,7 @@ public class MysqlIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mysql records", e);
 		}
-		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
 		log.debug("Number of new mysql incidents [{}], since last fetched at [{}] ", mysqlIncidentList.size(),
 				lastFetchTime);
 		log.info("MysqlIncident Population Successful");

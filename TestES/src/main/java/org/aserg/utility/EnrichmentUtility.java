@@ -29,6 +29,7 @@ public class EnrichmentUtility {
 			String dir = IOFileUtility.readProperty("GEOIP_FILE", IOFileUtility.ARCHIVAL_PATH);
 			LookupService cl = new LookupService(dir, LookupService.GEOIP_MEMORY_CACHE);
 			Location loc = cl.getLocation(remote_host);
+			//System.out.println(loc.countryName);
 			if (loc != null) {
 				String code3;
 				try {
@@ -45,7 +46,7 @@ public class EnrichmentUtility {
 		} catch (IOException e) {
 			log.error("Error occurred while trying to get Origin from source IP [{}] ", e);
 		}
-		log.warn("Origin was not created successfully, possibly because GEOIP lookup didn't yield expected response");
+		log.warn("Origin was not created successfully, possibly because GEOIP lookup didn't find data of source IP [{}] ", remote_host);
 		return null;
 	}
 

@@ -52,7 +52,7 @@ public class SipIncidentPopulator {
 		}
 		log.debug("Number of new sip incidents [{}], since last fetched at [{}] ", sipIncidentList.size(),
 				lastFetchTime);
-		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
 		log.info("SipIncident Population Successful");
 		return sipIncidentList;
 	}
