@@ -2,10 +2,15 @@ package org.aserg.model;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class represents an {@code Incident} on the Application Layer.
  */
 public class WebIncident extends Incident {
+
+	private static Logger log = LoggerFactory.getLogger(WebIncident.class);
 
 	/**
 	 * Length of content in request.
@@ -48,6 +53,7 @@ public class WebIncident extends Incident {
 			String protocol, Origin org, int contentLength, String contentType, String httpMethod, String pathParameter,
 			String referer, List<WebRule> rulesList, int severityId, String severityStatus, String userAgent) {
 		super(dateTime, srcIP, srcPort, service, dstIP, dstPort, protocol, org);
+		log.trace("Create new WebIncident where contentLength [{}], contentType [{}]", contentLength, contentType);
 		this.contentLength = contentLength;
 		this.contentType = contentType;
 		this.httpMethod = httpMethod;
@@ -60,74 +66,92 @@ public class WebIncident extends Incident {
 	}
 
 	public int getContentLength() {
+		log.trace("Get contentLength, returns [{}]", contentLength);
 		return contentLength;
 	}
 
 	public void setContentLength(int contentLength) {
+		log.trace("Set contentLength to [{}]", contentLength);
 		this.contentLength = contentLength;
 	}
 
 	public String getContentType() {
+		log.trace("Get contentType, returns [{}]", contentType);
 		return contentType;
 	}
 
 	public void setContentType(String contentType) {
+		log.trace("Set contentType to [{}]", contentType);
 		this.contentType = contentType;
 	}
 
 	public String getHttpMethod() {
+		log.trace("Get httpMethod, returns [{}]", httpMethod);
 		return httpMethod;
 	}
 
 	public void setHttpMethod(String httpMethod) {
+		log.trace("Set httpMethod to [{}]", httpMethod);
 		this.httpMethod = httpMethod;
 	}
 
 	public String getPathParameter() {
+		log.trace("Get pathParameter, returns [{}]", pathParameter);
 		return pathParameter;
 	}
 
 	public void setPathParameter(String pathParameter) {
+		log.trace("Set pathParameter to [{}]", pathParameter);
 		this.pathParameter = pathParameter;
 	}
 
 	public String getReferer() {
+		log.trace("Get referer, returns [{}]", referer);
 		return referer;
 	}
 
 	public void setReferer(String referer) {
+		log.trace("Set referer to [{}]", referer);
 		this.referer = referer;
 	}
 
 	public List<WebRule> getRulesList() {
+		log.trace("Get rulesList, returns [{}]", rulesList);
 		return rulesList;
 	}
 
 	public void setRulesList(List<WebRule> rulesList) {
+		log.trace("Set rulesList to [{}]", rulesList);
 		this.rulesList = rulesList;
 	}
 
 	public int getSeverityId() {
+		log.trace("Get severityId, returns [{}]", severityId);
 		return severityId;
 	}
 
 	public void setSeverityId(int severityId) {
+		log.trace("Set severityId to [{}]", severityId);
 		this.severityId = severityId;
 	}
 
 	public String getSeverityStatus() {
+		log.trace("Get severityStatus, returns [{}]", severityStatus);
 		return severityStatus;
 	}
 
 	public void setSeverityStatus(String severityStatus) {
+		log.trace("Set severityStatus to [{}]", severityStatus);
 		this.severityStatus = severityStatus;
 	}
 
 	public String getUserAgent() {
+		log.trace("Get userAgent, returns [{}]", userAgent);
 		return userAgent;
 	}
 
 	public void setUserAgent(String userAgent) {
+		log.trace("Set userAgent to [{}]", userAgent);
 		this.userAgent = userAgent;
 	}
 

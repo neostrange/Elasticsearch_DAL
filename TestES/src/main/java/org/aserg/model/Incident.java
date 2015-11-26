@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Incident {
 
-	private static Logger log = LoggerFactory.getLogger(Auth.class);
+	private static Logger log = LoggerFactory.getLogger(Incident.class);
 
 	/**
 	 * The incident datetime.
@@ -59,25 +59,27 @@ public class Incident {
 	}
 
 	public String getDateTime() {
-		log.trace("Get DateTime, returns [{}]");
+		log.trace("Get dateTime, returns [{}]", dateTime);
 		return dateTime;
 	}
 
 	public void setDateTime(String datetime) {
-		log.trace("Set DateTime to [{}]", datetime);
+		log.trace("Set dateTime to [{}]", datetime);
 		this.dateTime = datetime;
 	}
 
-	public String getSourceIP() {
+	public String getSrcIP() {
+		log.trace("Get srcIP, returns [{}]", srcIP);
 		return srcIP;
 	}
 
-	public void setSourceIP(String srcIP) {
-		log.trace("Set SourceIP to [{}]", srcIP);
+	public void setSrcIP(String srcIP) {
+		log.trace("Set srcIP to [{}]", srcIP);
 		this.srcIP = srcIP;
 	}
 
-	public int getSourcePort() {
+	public int getSrcPort() {
+		log.trace("Get srcPort, returns [{}]", srcPort);
 		return srcPort;
 	}
 
@@ -95,7 +97,8 @@ public class Incident {
 		this.service = service;
 	}
 
-	public String getDestinationIP() {
+	public String getDstIP() {
+		log.trace("Get dstIP, returns [{}]", dstIP);
 		return dstIP;
 	}
 
@@ -104,28 +107,33 @@ public class Incident {
 		this.dstIP = dstIP;
 	}
 
-	public int getDestinationPort() {
+	public int getDstPort() {
+		log.trace("Get dstPort, returns [{}]", dstPort);
 		return dstPort;
 	}
 
-	public void setDestinationPort(int dstPort) {
+	public void setDstPort(int dstPort) {
 		log.trace("Set dstPort to [{}]", dstPort);
 		this.dstPort = dstPort;
 	}
 
 	public String getProtocol() {
+		log.trace("Get protocol, returns [{}]", protocol);
 		return protocol;
 	}
 
 	public void setProtocol(String protocol) {
+		log.trace("Set protocol to [{}]", protocol);
 		this.protocol = protocol;
 	}
 
 	public Origin getOrigin() {
+		log.trace("Get origin, returns [{}]", origin);
 		return origin;
 	}
 
 	public void setOrigin(Origin org) {
+		log.trace("Set origin to [{}]", org);
 		this.origin = org;
 	}
 
