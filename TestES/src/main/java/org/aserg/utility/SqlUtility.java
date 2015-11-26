@@ -112,7 +112,7 @@ public class SqlUtility {
 			if (dionaeaConnection == null || dionaeaConnection.isClosed()) {
 
 				Class.forName(getPropertyFromConf().getProperty("SQLITE_DRIVER"));
-				dionaeaConnection = DriverManager.getConnection(getPropertyFromConf().getProperty("DATABASE_DIONAEA"),"PRAGMA journal_mode=WAL", null);
+				dionaeaConnection = DriverManager.getConnection(getPropertyFromConf().getProperty("DATABASE_DIONAEA"));
 				return dionaeaConnection;
 			}
 		} catch (ClassNotFoundException | SQLException e) {
