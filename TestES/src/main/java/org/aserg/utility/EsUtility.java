@@ -27,6 +27,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.transport.ConnectTransportException;
 
 import com.google.gson.Gson;
 
@@ -138,7 +139,13 @@ public class EsUtility {
 	public static void initBulkProcessor() {
 		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", DEFAULT_CLUSTERNAME).build();
 		client = new TransportClient(settings);
-		client.addTransportAddress(new InetSocketTransportAddress(DEFAULT_HOSTNAME, DEFAULT_PORT));
+		try {
+			client.addTransportAddress(new InetSocketTransportAddress(DEFAULT_HOSTNAME, DEFAULT_PORT));
+		} catch (ConnectTransportException e) {
+			logger.error("Error occurred while trying to connect to ElasticSearch at IP [{}] and Port [{}]",
+					DEFAULT_HOSTNAME, DEFAULT_PORT);
+			// TODO handle exception by waiting for connection
+		}
 		bulkProcessor = BulkProcessor.builder(client, listener).setBulkActions(DEFAULT_BULK_ACTIONS)
 				.setConcurrentRequests(DEFAULT_CONCURRENT_REQUESTS).setFlushInterval(DEFAULT_FLUSH_INTERVAL)
 				.setBulkSize(DEFAULT_BULK_SIZE).build();
@@ -150,21 +157,18 @@ public class EsUtility {
 	 * 
 	 * @throws InterruptedException
 	 */
-	public static void closeBulkProcessor() throws InterruptedException {
+	public static void closeBulkProcessor() {
 		bulkProcessor.flush();
-		bulkProcessor.awaitClose(30, TimeUnit.SECONDS);
+		try {
+			bulkProcessor.awaitClose(30, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			logger.error("Error occurred while trying to close BulkProcessor ", e);
+		}
 		client.close();
 	}
 
-	/**
-	 * 
-	 * @param list
-	 * @param index
-	 * @param type
-	 * @throws InterruptedException
-	 */
-	public static void pushMalwareData(List<MalwareIncident> list, String index, String type)
-			throws InterruptedException {
+
+	public static void pushMalwareData(List<MalwareIncident> list, String index, String type) {
 		initBulkProcessor();
 		for (MalwareIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));
@@ -172,7 +176,7 @@ public class EsUtility {
 		closeBulkProcessor();
 	}
 
-	public static void pushSshData(List<SshIncident> list, String index, String type) throws InterruptedException {
+	public static void pushSshData(List<SshIncident> list, String index, String type) {
 		initBulkProcessor();
 		for (SshIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));
@@ -180,7 +184,7 @@ public class EsUtility {
 		closeBulkProcessor();
 	}
 
-	public static void pushSipData(List<SipIncident> list, String index, String type) throws InterruptedException {
+	public static void pushSipData(List<SipIncident> list, String index, String type) {
 		initBulkProcessor();
 		for (SipIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));
@@ -188,7 +192,7 @@ public class EsUtility {
 		closeBulkProcessor();
 	}
 
-	public static void pushMysqlData(List<MysqlIncident> list, String index, String type) throws InterruptedException {
+	public static void pushMysqlData(List<MysqlIncident> list, String index, String type) {
 		initBulkProcessor();
 		for (MysqlIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));
@@ -196,7 +200,7 @@ public class EsUtility {
 		closeBulkProcessor();
 	}
 
-	public static void pushMssqlData(List<MssqlIncident> list, String index, String type) throws InterruptedException {
+	public static void pushMssqlData(List<MssqlIncident> list, String index, String type) {
 		initBulkProcessor();
 		for (MssqlIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));
@@ -204,8 +208,7 @@ public class EsUtility {
 		closeBulkProcessor();
 	}
 
-	public static void pushNetworkData(List<NetworkLayerIncident> list, String index, String type)
-			throws InterruptedException {
+	public static void pushNetworkData(List<NetworkLayerIncident> list, String index, String type) {
 		initBulkProcessor();
 		for (NetworkLayerIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));
@@ -213,8 +216,7 @@ public class EsUtility {
 		closeBulkProcessor();
 	}
 
-	public static void pushWebData(List<WebIncident> list, String index, String type)
-			throws InterruptedException {
+	public static void pushWebData(List<WebIncident> list, String index, String type) {
 		initBulkProcessor();
 		for (WebIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));

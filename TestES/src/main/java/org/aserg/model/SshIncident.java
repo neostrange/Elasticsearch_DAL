@@ -2,10 +2,15 @@ package org.aserg.model;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class represents an SSH {@code Incident}.
  */
 public class SshIncident extends Incident {
+	
+	private static Logger log = LoggerFactory.getLogger(SshIncident.class);
 
 	/**
 	 * For referring to MalwareIncidents
@@ -19,7 +24,7 @@ public class SshIncident extends Incident {
 	/**
 	 * The time attacker's SSH session ended.
 	 */
-	private String endtime;
+	private String endTime;
 	/**
 	 * The list of commands the attacker attempted to execute.
 	 */
@@ -33,50 +38,61 @@ public class SshIncident extends Incident {
 			String protocol, Origin org, String sessionId, List<Auth> authList, String endtime, List<Input> inputList,
 			String tool) {
 		super(dateTime, srcIP, srcPort, service, dstIP, dstPort, protocol, org);
+		log.trace("Create new SshIncident where sessionId [{}]", sessionId);
 		this.sessionId = sessionId;
 		this.authList = authList;
-		this.endtime = endtime;
+		this.endTime = endtime;
 		this.inputList = inputList;
 		this.tool = tool;
 	}
 
 	public String getSessionId() {
+		log.trace("Get sessionId, returns [{}]", sessionId);
 		return sessionId;
 	}
 
 	public void setSessionId(String sessionId) {
+		log.trace("Set sessionId to [{}]", sessionId);
 		this.sessionId = sessionId;
 	}
 
 	public List<Auth> getAuthList() {
+		log.trace("Get authList, returns [{}]", authList);
 		return authList;
 	}
 
 	public void setAuthList(List<Auth> authList) {
+		log.trace("Set authList to [{}]", authList);
 		this.authList = authList;
 	}
 
-	public String getEndtime() {
-		return endtime;
+	public String getEndTime() {
+		log.trace("Get endTime, returns [{}]", endTime);
+		return endTime;
 	}
 
-	public void setEndtime(String endtime) {
-		this.endtime = endtime;
+	public void setEndTime(String endtime) {
+		log.trace("Set endTime to [{}]", endtime);
+		this.endTime = endtime;
 	}
 
 	public List<Input> getInputList() {
+		log.trace("Get InputList, returns [{}]", inputList);
 		return inputList;
 	}
 
 	public void setInputList(List<Input> inputList) {
+		log.trace("Set inputList to [{}]", inputList);
 		this.inputList = inputList;
 	}
 
 	public String getTool() {
+		log.trace("Get tool, returns [{}]", tool);
 		return tool;
 	}
 
 	public void setTool(String tool) {
+		log.trace("Set tool to [{}]", tool);
 		this.tool = tool;
 	}
 

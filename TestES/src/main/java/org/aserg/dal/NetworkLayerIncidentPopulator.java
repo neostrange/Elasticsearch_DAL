@@ -13,6 +13,8 @@ import org.aserg.model.Origin;
 import org.aserg.utility.EnrichmentUtility;
 import org.aserg.utility.IOFileUtility;
 import org.aserg.utility.SqlUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Waseem
@@ -20,14 +22,16 @@ import org.aserg.utility.SqlUtility;
  */
 public class NetworkLayerIncidentPopulator {
 
-	
+	private static Logger log = LoggerFactory.getLogger(MalwareIncidentPopulator.class);
 
 	public List<NetworkLayerIncident> populate() {
+		log.info("Initiating NetworkLayerIncident Population");
 		List<NetworkLayerIncident> networkLayerIncidentList = new ArrayList<NetworkLayerIncident>();
+		String lastFetchTime = IOFileUtility.readProperty("networkTime", IOFileUtility.STATE_PATH);
 		NetworkLayerIncident networkLayerIncident = null;
-
+		log.debug("Run query to fetch network records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.getNetConnection(),
-				IOFileUtility.readTime("networkTime"));
+				lastFetchTime);
 
 		String type = null;
 		String transport = null;
@@ -47,28 +51,33 @@ public class NetworkLayerIncidentPopulator {
 					type = rs.getString("icmp_type");
 					transport = null;
 					protocol = "icmp";
+
 				} else {
 					type = null;
 					transport = rs.getInt("tcp_local_port") == 0 ? "udp" : "tcp";
 					protocol = "protocol";
 
 				}
-				// TODO enrichmentutil geolocation and populate origin
 				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
-				org = org == null? null: org;
+				org = org == null ? null : org;
 				networkLayerIncident = new NetworkLayerIncident(rs.getString("connection_datetime").replace(' ', 'T'),
 						rs.getString("remote_host"), remotePort, protocol, rs.getString("local_host"), localPort,
 						transport, org, rs.getInt("cid"), rs.getInt("sid"), rs.getString("sig_name"),
 						rs.getString("sig_class_name"), type);
-				IOFileUtility.writeTime("networkTime", rs.getString("connection_datetime"));
+				IOFileUtility.writeProperty("networkTime", rs.getString("connection_datetime"),
+						IOFileUtility.STATE_PATH);
 				networkLayerIncidentList.add(networkLayerIncident);
+				log.debug("Added NetworkLayerIncident to list , cid [{}], sid [{}]", rs.getString("cid"),
+						rs.getString("sid"));
 
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error occurred while trying to traverse through network ResultSet", e);
 		}
 		SqlUtility.closeConnection(SqlUtility.getNetConnection());
+		log.debug("Number of new network incidents [{}], since last fetched at [{}] ", networkLayerIncidentList.size(),
+				lastFetchTime);
+		log.info("NetworkLayerIncident Population Successful");
 		return networkLayerIncidentList;
 	}
 

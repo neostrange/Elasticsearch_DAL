@@ -12,19 +12,25 @@ import org.aserg.model.SshIncident;
 import org.aserg.utility.EnrichmentUtility;
 import org.aserg.utility.IOFileUtility;
 import org.aserg.utility.SqlUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SshIncidentPopulator {
-	
+
+	private static Logger log = LoggerFactory.getLogger(SshIncidentPopulator.class);
+
 	public List<SshIncident> populate() {
-		
+		log.info("Initiating SshIncident Population");
 		SshIncident ssh = null;
 		List<SshIncident> sshIncidentList = new ArrayList<SshIncident>();
 		List<Auth> authList = null;
 		Auth auth = null;
 		List<Input> inputList = null;
 		Input input = null;
+		String lastFetchTime = IOFileUtility.readProperty("sshTime", IOFileUtility.STATE_PATH);
+		log.debug("Run query to fetch ssh records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, SqlUtility.getKippoConnection(),
-				IOFileUtility.readTime("sshTime"));
+				lastFetchTime);
 		String prev = null;
 		boolean authenticated = false;
 		try {
@@ -33,28 +39,25 @@ public class SshIncidentPopulator {
 
 				System.out.println("count" + count++);
 				Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
-				org = org == null? null: org;
+				org = org == null ? null : org;
 				if (rs.getString("input_timestamp") != null) {
 					input = new Input(rs.getString("input"),
 							Boolean.valueOf(rs.getInt("input_success") == 1 ? "true" : "false"),
 							rs.getString("input_timestamp").replace(' ', 'T'));
-
-				}
-				if (rs.getString("auth_timestamp") != null) {
-					auth = new Auth(rs.getString("username"), rs.getString("password"),
-							Boolean.valueOf(rs.getInt("auth_success") == 1 ? "true" : "false"),
-							rs.getString("auth_timestamp").replace(' ', 'T'));
 				}
 
 				if (rs.getString("order_id").equals(prev)) {
-
+					log.debug("SshIncident same as previous, session [{}] ", prev);
 					// if prev auth attempt in the session was successful
 					if (inputList != null) {
 						inputList.add(input);
 						ssh.setInputList(inputList);
 
 					}
-					if (!authenticated) {
+					if (!authenticated && rs.getString("auth_timestamp") != null) {
+						auth = new Auth(rs.getString("username"), rs.getString("password"),
+								Boolean.valueOf(rs.getInt("auth_success") == 1 ? "true" : "false"),
+								rs.getString("auth_timestamp").replace(' ', 'T'));
 						authList.add(auth);
 						ssh.setAuthList(authList);
 						authenticated = Boolean.valueOf(rs.getInt("auth_success") == 1 ? "true" : "false");
@@ -65,11 +68,15 @@ public class SshIncidentPopulator {
 					if (ssh != null) {
 						if (authList != null) {
 							ssh.setAuthList(authList);
+							log.debug("Added authentication list to SshIncident, attempts [{}] ", authList.size());
 						}
 						if (inputList != null) {
 							ssh.setInputList(inputList);
+							log.debug("Added input list to SshIncident, attempts [{}] ", inputList.size());
+
 						}
 						sshIncidentList.add(ssh);
+						log.debug("Added SshIncident, session [{}] to list ", prev);
 						authList = null;
 						inputList = null;
 						authenticated = false;
@@ -79,21 +86,26 @@ public class SshIncidentPopulator {
 					String etime = rs.getString("endtime") != null ? rs.getString("endtime").replace(' ', 'T') : null;
 					String client = rs.getString("version");
 					String remotehost = rs.getString("remote_host");
-					ssh = new SshIncident(stime, remotehost, 22, "sshd", SqlUtility.getPropertyFromConf().getProperty("HOST"), 
-							22, "tcp", org, rs.getString("order_id"), null, etime, null, client);
-					IOFileUtility.writeTime("sshTime", rs.getString("connection_datetime"));
+					ssh = new SshIncident(stime, remotehost, 22, "sshd",
+							IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH), 22, "tcp", org,
+							rs.getString("order_id"), null, etime, null, client);
+					IOFileUtility.writeProperty("sshTime", rs.getString("connection_datetime"),
+							IOFileUtility.STATE_PATH);
 					// in case there are auth attempts
 					if (auth != null) {
 						authList = new ArrayList<Auth>();
 						authList.add(auth);
 						ssh.setAuthList(authList);
 						authenticated = Boolean.valueOf(rs.getInt("auth_success") == 1 ? "true" : "false");
+
 						// in case auth is successful, there may or may not be
 						// an input
 						if (input != null) {
 							inputList = new ArrayList<Input>();
 							inputList.add(input);
 							ssh.setInputList(inputList);
+							log.debug("Added input list to SshIncident, attempts [{}] ", inputList.size());
+
 						}
 					}
 				}
@@ -109,10 +121,12 @@ public class SshIncidentPopulator {
 
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error occurred while trying to traverse through ssh records ", e);
 		}
 		SqlUtility.closeConnection(SqlUtility.getKippoConnection());
+		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", sshIncidentList.size(),
+				lastFetchTime);
+		log.info("SshIncident Population Successful");
 		return sshIncidentList;
 	}
 

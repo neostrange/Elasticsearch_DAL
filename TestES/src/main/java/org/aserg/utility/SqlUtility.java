@@ -1,22 +1,21 @@
 package org.aserg.utility;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
-
-import javax.naming.InitialContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 public class SqlUtility {
+
+	private static Logger log = LoggerFactory.getLogger(SqlUtility.class);
+
 
 	public static final String MALWARE_INCIDENT_QUERY = "select downloads.download as order_id, remote_host,local_port, connection_protocol,"
 			+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime,"
@@ -65,10 +64,8 @@ public class SqlUtility {
 	public static final String SSH_INCIDENT_QUERY = " SELECT sessions.id as order_id, sessions.ip as remote_host,"
 			+ " starttime as connection_datetime, endtime, clients.version, auth.username, "
 			+ "auth.password,auth.success as auth_success,auth.timestamp as auth_timestamp, "
-			+ "input.input, input.success as input_success,input.timestamp as input_timestamp " 
-			+ "FROM sessions "
-			+ "LEFT JOIN auth ON auth.session = sessions.id "
-			+ "LEFT JOIN input ON input.session = sessions.id  "
+			+ "input.input, input.success as input_success,input.timestamp as input_timestamp " + "FROM sessions "
+			+ "LEFT JOIN auth ON auth.session = sessions.id " + "LEFT JOIN input ON input.session = sessions.id  "
 			+ "LEFT JOIN clients ON clients.id = sessions.client ";
 
 	public static final String WEB_INCIDENT_QUERY = "SELECT events.event_id as order_id,a_timestamp as connection_datetime,"
@@ -86,11 +83,9 @@ public class SqlUtility {
 			+ "INNER JOIN connections on (sip_commands.connection=connections.connection)";
 
 	public static final String SSH_MALWARE_INCIDENT_QUERY = "SELECT downloads.timestamp as connection_datetime, "
-			+ "downloads.outfile as payload, sessions.id, url, sessions.ip as remotehost "
-			+ "FROM downloads "
+			+ "downloads.outfile as payload, sessions.id, url, sessions.ip as remotehost " + "FROM downloads "
 			+ "LEFT JOIN sessions on downloads.session = sessions.id ";
 
-	final static String BASE_PATH = System.getProperty("user.dir") + "/config/archivalAgent.properties";
 	/**
 	 * This variable will create a connection with Sqlite and mysql
 	 */
@@ -107,30 +102,38 @@ public class SqlUtility {
 	 * @return Nothing
 	 */
 	public static Connection getDionaeaConnection() {
-
+		log.info("Trying to get Dionaea Connection...");
 		try {
 			if (dionaeaConnection == null || dionaeaConnection.isClosed()) {
 
-				Class.forName(getPropertyFromConf().getProperty("SQLITE_DRIVER"));
-				dionaeaConnection = DriverManager.getConnection(getPropertyFromConf().getProperty("DATABASE_DIONAEA"));
-				return dionaeaConnection;
+
+				Class.forName(IOFileUtility.readProperty("SQLITE_DRIVER", IOFileUtility.ARCHIVAL_PATH));dionaeaConnection = DriverManager.getConnection(
+						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH), "PRAGMA journal_mode=WAL", null);
+				Class.forName(IOFileUtility.readProperty("SQLITE_DRIVER", IOFileUtility.ARCHIVAL_PATH));
+				dionaeaConnection = DriverManager.getConnection(
+						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH), "PRAGMA journal_mode=WAL", null);
+//github.com/neostrange/Elasticsearch_DAL.git
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			if (e.getMessage().contains("BUSY"))
-				e.printStackTrace();
+				log.error("Error occurred while trying to get Dionaea connection because database is locked ", e);
+			else
+				log.error("Error occurred while trying to get Dionaea connection ", e);
 		}
+		log.info("Dionaea Connection Successfully Created");
 		return dionaeaConnection;
 	}
 
 	public static void closeConnection(Connection con) {
+		log.info("Trying to close Dionaea Connection...");
 		if (con != null) {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Error occurred while trying to close Dionaea connection ", e);
 			}
 		}
+		log.info("Dionaea Connection Closed");
 	}
 
 	/**
@@ -141,71 +144,66 @@ public class SqlUtility {
 	 * @return Nothing
 	 */
 	public static Connection getKippoConnection() {
-
+		log.info("Trying to get Kippo Connection...");
 		MysqlDataSource mds = null;
 		try {
 			if (kippoConnection == null || kippoConnection.isClosed()) {
 				mds = new MysqlDataSource();
-				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
-				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("SSH_PORT")));
-				mds.setDatabaseName(getPropertyFromConf().getProperty("SSH_DB_NAME"));
-				mds.setUser(getPropertyFromConf().getProperty("SSH_USER"));
-				mds.setPassword(getPropertyFromConf().getProperty("SSH_PASSWORD"));
-
+				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
+				mds.setPortNumber(Integer.parseInt(IOFileUtility.readProperty("SSH_PORT", IOFileUtility.ARCHIVAL_PATH)));
+				mds.setDatabaseName(IOFileUtility.readProperty("SSH_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
+				mds.setUser(IOFileUtility.readProperty("SSH_USER", IOFileUtility.ARCHIVAL_PATH));
+				mds.setPassword(IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
 				kippoConnection = mds.getConnection();
 
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error occurred while trying to get Kippo Connection ", e);
 		}
+		log.info("Kippo Connection Successfully Created");
 		return kippoConnection;
 
 	}
 
 	public static Connection getNetConnection() {
-
+		log.info("Trying to get Network Connection...");
 		MysqlDataSource mds = null;
 		try {
 			if (netConnection == null || netConnection.isClosed()) {
 				mds = new MysqlDataSource();
-				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
-				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("NETWORK_PORT")));
-				mds.setDatabaseName(getPropertyFromConf().getProperty("NETWORK_DB_NAME"));
-				mds.setUser(getPropertyFromConf().getProperty("NETWORK_USER"));
-				mds.setPassword(getPropertyFromConf().getProperty("NETWORK_PASSWORD"));
+				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
+				mds.setPortNumber(Integer.parseInt(IOFileUtility.readProperty("NETWORK_PORT", IOFileUtility.ARCHIVAL_PATH)));
+				mds.setDatabaseName(IOFileUtility.readProperty("NETWORK_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
+				mds.setUser(IOFileUtility.readProperty("NETWORK_USER", IOFileUtility.ARCHIVAL_PATH));
+				mds.setPassword(IOFileUtility.readProperty("NETWORK_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
 				netConnection = mds.getConnection();
-				return netConnection;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error occurred while trying to get Network Connection ", e);
 		}
+		log.info("Network Connection Successfully Created");
 		return netConnection;
 
 	}
 
 	public static Connection getWebConnection() {
-
+		log.info("Trying to get Web Connection...");
 		MysqlDataSource mds = null;
 		try {
 			if (webConnection == null || webConnection.isClosed()) {
 				mds = new MysqlDataSource();
-
-				mds.setServerName(getPropertyFromConf().getProperty("HOST"));
-				mds.setPortNumber(Integer.parseInt(getPropertyFromConf().getProperty("WEB_PORT")));
-				mds.setDatabaseName(getPropertyFromConf().getProperty("WEB_DB_NAME"));
-				mds.setUser(getPropertyFromConf().getProperty("WEB_USER"));
-				mds.setPassword(getPropertyFromConf().getProperty("WEB_PASSWORD"));
-
+				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
+				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
+				mds.setPortNumber(Integer.parseInt(IOFileUtility.readProperty("WEB_PORT", IOFileUtility.ARCHIVAL_PATH)));
+				mds.setDatabaseName(IOFileUtility.readProperty("WEB_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
+				mds.setUser(IOFileUtility.readProperty("WEB_USER", IOFileUtility.ARCHIVAL_PATH));
+				mds.setPassword(IOFileUtility.readProperty("WEB_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
 				webConnection = mds.getConnection();
-				return webConnection;
-
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error occurred while trying to get Web Connection ", e);
 		}
+		log.info("Web Connection Created Successfully");
 		return webConnection;
 
 	}
@@ -217,13 +215,15 @@ public class SqlUtility {
 	 * @return rs
 	 */
 	public static ResultSet getResultSet(String query, Connection con, String time) {
+		log.info("Trying to get ResultSet for time [{}] and query [{}] ", time, query);
 		ResultSet rs = null;
 		Statement stmt = null;
+		String schema = null;
 		try {
 			stmt = con.createStatement();
+			schema = con.getSchema();
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			log.error("Error occurred while trying to create SQL Statement ", e1);
 		}
 		String tempQuery = null;
 		// for MySQL databases
@@ -236,32 +236,17 @@ public class SqlUtility {
 			tempQuery = tempQuery + " order by order_id asc";
 
 		try {
-			System.out.println(tempQuery);
+			log.debug("Query [{}] to be executed in database [{}] ", tempQuery, schema);
 			rs = stmt.executeQuery(tempQuery);
 
 		} catch (MySQLSyntaxErrorException e) {
-			e.printStackTrace();
+			log.error("Error occurred while trying to execute query '{}' in database {} ", tempQuery, schema, e);
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error occurred while trying to execute query '{}' in database {} ", tempQuery, schema, e);
 		}
+		log.info("Query executed successfully");
 		return rs;
-	}
-
-	public static Properties getPropertyFromConf() {
-		BufferedReader br;
-		Properties p = new Properties();
-		try {
-			br = new BufferedReader(new FileReader(BASE_PATH));
-			p.load(br);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return p;
 	}
 
 }
