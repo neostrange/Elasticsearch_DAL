@@ -6,6 +6,8 @@ package org.aserg.utility;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.MissingResourceException;
+
+import org.apache.commons.lang3.text.WordUtils;
 import org.aserg.model.Origin;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.slf4j.Logger;
@@ -44,7 +46,7 @@ public class EnrichmentUtility {
 			}
 			log.info("Origin created successfully");
 			cl.close();
-			return new Origin(loc.countryName, code3, loc.city, new GeoPoint(loc.latitude + "," + loc.longitude));
+			return new Origin(WordUtils.capitalizeFully(loc.countryName), code3.toUpperCase(), loc.city, new GeoPoint(loc.latitude + "," + loc.longitude));
 		}
 		log.warn("Origin was not created successfully, possibly because GEOIP lookup didn't yield expected response");
 		return null;
