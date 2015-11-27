@@ -41,7 +41,6 @@ public class WebIncidentPopulator {
 		log.debug("Run query to fetch web records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.WEB_INCIDENT_QUERY, SqlUtility.getWebConnection(),
 				lastFetchTime);
-		EnrichmentUtility.initLookupService();
 		String prev = null;
 		try {
 			while (rs.next()) {
@@ -96,7 +95,6 @@ public class WebIncidentPopulator {
 
 
 		IOFileUtility.writeProperty("webTime", lastFetchTime, IOFileUtility.STATE_PATH);
-		EnrichmentUtility.closeLookupService();
 		SqlUtility.closeDbInstances(SqlUtility.getWebConnection());
 		log.debug("Number of new web incidents [{}], since last fetched at [{}] ", webIncidentList.size(),
 				lastFetchTime);

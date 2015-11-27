@@ -19,8 +19,9 @@ public class EnrichmentUtility {
 	private static Logger log = LoggerFactory.getLogger(EnrichmentUtility.class);
 	private static String dir = IOFileUtility.readProperty("GEOIP_FILE", IOFileUtility.ARCHIVAL_PATH);
 	private static LookupService cl = null;
+	static Location loc = null;
 
-	public static void initLookupService() {
+	static {
 		try {
 			cl = new LookupService(dir, LookupService.GEOIP_MEMORY_CACHE);
 
@@ -29,14 +30,10 @@ public class EnrichmentUtility {
 		}
 	}
 
-	public static void closeLookupService() {
-		if (cl != null)
-			cl.close();
-	}
 
 	public static Origin getOrigin(String remote_host) {
 		log.info("Get origin, where source IP is [{}] ", remote_host);
-		Location loc = cl.getLocation(remote_host);
+		loc = cl.getLocation(remote_host);
 		if (loc != null) {
 			String code3;
 			try {
@@ -46,6 +43,7 @@ public class EnrichmentUtility {
 				code3 = "";
 			}
 			log.info("Origin created successfully");
+			cl.close();
 			return new Origin(loc.countryName, code3, loc.city, new GeoPoint(loc.latitude + "," + loc.longitude));
 		}
 		log.warn("Origin was not created successfully, possibly because GEOIP lookup didn't yield expected response");

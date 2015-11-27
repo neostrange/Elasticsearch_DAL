@@ -32,7 +32,6 @@ public class NetworkLayerIncidentPopulator {
 		log.debug("Run query to fetch network records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.getNetConnection(),
 				lastFetchTime);
-		EnrichmentUtility.initLookupService();
 		String type = null;
 		String transport = null;
 		String protocol = null;
@@ -75,7 +74,6 @@ public class NetworkLayerIncidentPopulator {
 			log.error("Error occurred while trying to traverse through network ResultSet", e);
 		}
 
-		EnrichmentUtility.closeLookupService();
 		SqlUtility.closeDbInstances(SqlUtility.getNetConnection());
 		IOFileUtility.writeProperty("networkTime", lastFetchTime,
 				IOFileUtility.STATE_PATH);

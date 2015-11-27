@@ -34,7 +34,6 @@ public class SipIncidentPopulator {
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				lastFetchTime);
 		Origin org = null;
-		EnrichmentUtility.initLookupService();
 		try {
 			while (rs.next()) {
 				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
@@ -53,7 +52,6 @@ public class SipIncidentPopulator {
 		}
 		log.debug("Number of new sip incidents [{}], since last fetched at [{}] ", sipIncidentList.size(),
 				lastFetchTime);
-		EnrichmentUtility.closeLookupService();
 		IOFileUtility.writeProperty("sipTime", datetime, IOFileUtility.STATE_PATH);
 		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
 		log.info("SipIncident Population Successful");

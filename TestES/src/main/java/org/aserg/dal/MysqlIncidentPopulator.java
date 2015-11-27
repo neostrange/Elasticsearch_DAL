@@ -30,7 +30,6 @@ public class MysqlIncidentPopulator {
 		log.debug("Run query to fetch mysql records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MYSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				lastFetchTime);
-		EnrichmentUtility.initLookupService();
 		String prev = null;
 		try {
 			while (rs.next()) {
@@ -72,9 +71,7 @@ public class MysqlIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mysql records", e);
 		}
-		
-
-		EnrichmentUtility.closeLookupService();
+	
 		IOFileUtility.writeProperty("mysqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
 		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
 		log.debug("Number of new mysql incidents [{}], since last fetched at [{}] ", mysqlIncidentList.size(),

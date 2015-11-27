@@ -23,7 +23,6 @@ public class MssqlIncidentPopulator {
 		MssqlIncident mssqlIncident;
 		String lastFetchTime = IOFileUtility.readProperty("mssqlTime", IOFileUtility.STATE_PATH);
 		log.debug("Run query to fetch mssql records");
-		EnrichmentUtility.initLookupService();
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				lastFetchTime);
 		Origin org = null;
@@ -43,9 +42,6 @@ public class MssqlIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mssql records", e);
 		}
-		log.debug("Number of new mssql incidents [{}], since last fetched at [{}] ", mssqlIncidentList.size(), lastFetchTime);
-		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
-		EnrichmentUtility.closeLookupService();
 		log.debug("Number of new mssql incidents [{}], since last fetched at [{}] ", mssqlIncidentList.size(),
 				lastFetchTime);
 		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
