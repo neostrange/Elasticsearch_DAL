@@ -118,9 +118,10 @@ public class SqlUtility {
 	public static final String WEB_INCIDENT_QUERY = "SELECT events.event_id as order_id,a_timestamp as connection_datetime,"
 			+ "INET_NTOA(a_client_ip) as client_ip,a_client_port,INET_NTOA(a_server_ip) as remote_host ,a_server_port,"
 			+ "b_method,b_path, b_path_parameter,b_protocol, b_user_agent,b_referer,f_content_length,"
-			+ "f_content_type, f_status,id_severity,severity.severity,message_ruleMsg" + " from events "
+			+ "f_content_type, f_status,id_severity,severity.severity,message_ruleMsg" 
+			+ " from events "
 			+ "left join events_messages on events_messages.event_id=events.event_id "
-			+ "left join rule_message on rule_message.message_ruleid=events_messages.h_message_ruleId "
+			+ "left join rule_message on rule_message.message_ruleId=events_messages.h_message_ruleId "
 			+ "left join severity on severity.id_severity=events.`h_severity` ";
 
 	public static final String SIP_INCIDENT_QUERY = "select connections.connection as order_id, remote_host,local_port, connection_protocol,"
