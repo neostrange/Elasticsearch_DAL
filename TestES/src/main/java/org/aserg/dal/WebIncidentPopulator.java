@@ -87,7 +87,7 @@ public class WebIncidentPopulator {
 				if (rs.isLast() && !webIncidentList.contains(webIncident)) {
 					webIncidentList.add(webIncident);
 					log.debug("Added WebIncident to list, event_id [{}], rules triggered [{}] ",
-							rs.getString("order_id"), webRuleList.size());
+							rs.getString("order_id"));
 				}
 
 			}
