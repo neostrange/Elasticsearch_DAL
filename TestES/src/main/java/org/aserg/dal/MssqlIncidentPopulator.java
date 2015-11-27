@@ -29,7 +29,10 @@ public class MssqlIncidentPopulator {
 		String remotehost = null;
 		try {
 			while (rs.next()) {
-				remotehost= rs.getString("remote_host").split(":f")[1];
+				if(rs.getString("remote_host").contains(":"))
+					remotehost= rs.getString("remote_host").split(":f")[1];
+				else
+					remotehost= rs.getString("remote_host");
 				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				lastFetchTime = rs.getString("connection_datetime");
