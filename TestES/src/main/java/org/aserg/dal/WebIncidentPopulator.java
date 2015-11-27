@@ -39,7 +39,9 @@ public class WebIncidentPopulator {
 		WebIncident webIncident = null;
 		String lastFetchTime = IOFileUtility.readProperty("webTime", IOFileUtility.STATE_PATH);
 		log.debug("Run query to fetch web records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.WEB_INCIDENT_QUERY, SqlUtility.getWebConnection(),
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.WEB_INCIDENT_QUERY, 
+				SqlUtility.getMysqlConnection(IOFileUtility.readProperty("WEB_DB_NAME", IOFileUtility.ARCHIVAL_PATH)
+						, IOFileUtility.readProperty("WEB_PASSWORD", IOFileUtility.ARCHIVAL_PATH)),
 				lastFetchTime);
 		String prev = null;
 		try {
@@ -52,8 +54,8 @@ public class WebIncidentPopulator {
 							webIncident.setRulesList(webRuleList);
 						}
 						webIncidentList.add(webIncident);
-						log.debug("Added WebIncident to list, event_id [{}], rules triggered [{}] ",
-								rs.getString("connection"), webRuleList.size());
+						log.debug("Added WebIncident to list, event_id [{}] ",
+								rs.getString("order_id"));
 
 					}
 					Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
@@ -85,7 +87,7 @@ public class WebIncidentPopulator {
 				if (rs.isLast() && !webIncidentList.contains(webIncident)) {
 					webIncidentList.add(webIncident);
 					log.debug("Added WebIncident to list, event_id [{}], rules triggered [{}] ",
-							rs.getString("connection"), webRuleList.size());
+							rs.getString("order_id"), webRuleList.size());
 				}
 
 			}
@@ -95,7 +97,7 @@ public class WebIncidentPopulator {
 
 
 		IOFileUtility.writeProperty("webTime", lastFetchTime, IOFileUtility.STATE_PATH);
-		SqlUtility.closeDbInstances(SqlUtility.getWebConnection());
+		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
 		log.debug("Number of new web incidents [{}], since last fetched at [{}] ", webIncidentList.size(),
 				lastFetchTime);
 		log.info("WebIncident Population Successful");

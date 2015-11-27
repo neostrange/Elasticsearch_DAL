@@ -31,7 +31,7 @@ public class SipIncidentPopulator {
 		SipIncident sipIncident;
 		String datetime = null;
 		log.debug("Run query to fetch sip records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.getSqliteConnection(),
 				lastFetchTime);
 		Origin org = null;
 		try {
@@ -45,7 +45,7 @@ public class SipIncidentPopulator {
 						rs.getString("sip_command_method"), rs.getString("sip_command_user_agent"));
 
 				sipIncidentList.add(sipIncident);
-				log.debug("Added SipIncident to list, connection [{}]", rs.getString("connection"));
+				log.debug("Added SipIncident to list, connection [{}]", rs.getString("order_id"));
 			}
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through sip records ", e);
@@ -53,7 +53,7 @@ public class SipIncidentPopulator {
 		log.debug("Number of new sip incidents [{}], since last fetched at [{}] ", sipIncidentList.size(),
 				lastFetchTime);
 		IOFileUtility.writeProperty("sipTime", datetime, IOFileUtility.STATE_PATH);
-		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getSqliteConnection());
 		log.info("SipIncident Population Successful");
 		return sipIncidentList;
 	}

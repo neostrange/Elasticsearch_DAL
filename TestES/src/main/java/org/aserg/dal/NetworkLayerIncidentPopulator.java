@@ -30,7 +30,9 @@ public class NetworkLayerIncidentPopulator {
 		String lastFetchTime = IOFileUtility.readProperty("networkTime", IOFileUtility.STATE_PATH);
 		NetworkLayerIncident networkLayerIncident = null;
 		log.debug("Run query to fetch network records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.getNetConnection(),
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.NETWORK_LAYER_INCIDENT_QUERY, SqlUtility.
+				getMysqlConnection(IOFileUtility.readProperty("NETWORK_DB_NAME", IOFileUtility.ARCHIVAL_PATH),
+						IOFileUtility.readProperty("NETWORK_PASSWORD", IOFileUtility.ARCHIVAL_PATH)),
 				lastFetchTime);
 		String type = null;
 		String transport = null;
@@ -63,10 +65,10 @@ public class NetworkLayerIncidentPopulator {
 				lastFetchTime = rs.getString("connection_datetime");
 				networkLayerIncident = new NetworkLayerIncident(lastFetchTime.replace(' ', 'T'),
 						rs.getString("remote_host"), remotePort, protocol, rs.getString("local_host"), localPort,
-						transport, org, rs.getInt("cid"), rs.getInt("sid"), rs.getString("sig_name"),
+						transport, org, rs.getInt("order_id"), rs.getInt("sid"), rs.getString("sig_name"),
 						rs.getString("sig_class_name"), type);
 				networkLayerIncidentList.add(networkLayerIncident);
-				log.debug("Added NetworkLayerIncident to list , cid [{}], sid [{}]", rs.getString("cid"),
+				log.debug("Added NetworkLayerIncident to list , cid [{}], sid [{}]", rs.getString("order_id"),
 						rs.getString("sid"));
 
 			}
@@ -74,7 +76,7 @@ public class NetworkLayerIncidentPopulator {
 			log.error("Error occurred while trying to traverse through network ResultSet", e);
 		}
 
-		SqlUtility.closeDbInstances(SqlUtility.getNetConnection());
+		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
 		IOFileUtility.writeProperty("networkTime", lastFetchTime,
 				IOFileUtility.STATE_PATH);
 		log.debug("Number of new network incidents [{}], since last fetched at [{}] ", networkLayerIncidentList.size(),

@@ -23,7 +23,7 @@ public class MssqlIncidentPopulator {
 		MssqlIncident mssqlIncident;
 		String lastFetchTime = IOFileUtility.readProperty("mssqlTime", IOFileUtility.STATE_PATH);
 		log.debug("Run query to fetch mssql records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.getSqliteConnection(),
 				lastFetchTime);
 		Origin org = null;
 		try {
@@ -37,14 +37,14 @@ public class MssqlIncidentPopulator {
 						rs.getString("mssql_fingerprint_cltintname"), rs.getString("cmd"), rs.getString("status"),
 						rs.getString("mssql_fingerprint_hostname"));
 				mssqlIncidentList.add(mssqlIncident);
-				log.debug("Added MssqlIncident to list, connection [{}]", rs.getString("connection"));
+				log.debug("Added MssqlIncident to list, connection [{}]", rs.getString("order_id"));
 			}
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mssql records", e);
 		}
 		log.debug("Number of new mssql incidents [{}], since last fetched at [{}] ", mssqlIncidentList.size(),
 				lastFetchTime);
-		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getSqliteConnection());
 		IOFileUtility.writeProperty("mssqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
 		log.info("MssqlIncident Population Successful");
 		return mssqlIncidentList;

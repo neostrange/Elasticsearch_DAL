@@ -38,7 +38,7 @@ public class ArchivalAgent {
 
 					log.warn("Malware State Property is [ON]");
 					MalwareIncidentPopulator malware = new MalwareIncidentPopulator();
-					EsUtility.pushMalwareData(malware.populate(), "incidents", "malwareIncidents");
+					EsUtility.pushMalwareData(malware.populate(), "incident", "MalwareIncidents");
 
 				} else
 					log.warn("Malware State Property is [OFF]");
@@ -47,7 +47,7 @@ public class ArchivalAgent {
 
 					log.warn("Mssql State Property is [ON]");
 					MssqlIncidentPopulator mssql = new MssqlIncidentPopulator();
-					EsUtility.pushMssqlData(mssql.populate(), "incidents", "mssqlIncidents");
+					EsUtility.pushMssqlData(mssql.populate(), "incident", "MssqlIncidents");
 
 				} else
 					log.warn("Mssql State Property is [OFF]");
@@ -56,7 +56,7 @@ public class ArchivalAgent {
 
 					log.warn("Mysql State Property is [ON]");
 					MysqlIncidentPopulator mysql = new MysqlIncidentPopulator();
-					EsUtility.pushMysqlData(mysql.populate(), "incidents", "mysqlIncidents");
+					EsUtility.pushMysqlData(mysql.populate(), "incident", "MysqlIncidents");
 
 				} else
 					log.warn("Mssql State Property is [OFF]");
@@ -65,7 +65,7 @@ public class ArchivalAgent {
 
 					log.warn("Sip State Property is [ON]");
 					SipIncidentPopulator sip = new SipIncidentPopulator();
-					EsUtility.pushSipData(sip.populate(), "incidents", "sipIncidents");
+					EsUtility.pushSipData(sip.populate(), "incident", "SipIncidents");
 
 				} else
 					log.warn("Sip State Property is [OFF]");
@@ -74,7 +74,7 @@ public class ArchivalAgent {
 
 					log.warn("Ssh State Property is [ON]");
 					SshIncidentPopulator ssh = new SshIncidentPopulator();
-					EsUtility.pushSshData(ssh.populate(), "incidents", "sshIncidents");
+					EsUtility.pushSshData(ssh.populate(), "incident", "SshIncidents");
 
 				} else
 					log.warn("Ssh State Property is [OFF]");
@@ -83,7 +83,7 @@ public class ArchivalAgent {
 
 					log.warn("Ssh Malware State Property is [ON]");
 					MalwareIncidentPopulator malware = new MalwareIncidentPopulator();
-					EsUtility.pushMalwareData(malware.populateSsh(), "incidents", "malwareIncidents");
+					EsUtility.pushMalwareData(malware.populateSsh(), "incident", "MalwareIncidents");
 
 				} else
 					log.warn("Ssh Malware State Property is [OFF]");
@@ -92,7 +92,7 @@ public class ArchivalAgent {
 
 					log.warn("Web State Property is [ON]");
 					WebIncidentPopulator web = new WebIncidentPopulator();
-					EsUtility.pushWebData(web.populate(), "incidents", "webIncidents");
+					EsUtility.pushWebData(web.populate(), "incident", "WebIncidents");
 
 				} else
 					log.warn("Web State Property is [OFF]");
@@ -101,7 +101,7 @@ public class ArchivalAgent {
 
 					log.warn("Network State Property is [ON]");
 					NetworkLayerIncidentPopulator network = new NetworkLayerIncidentPopulator();
-					EsUtility.pushNetworkData(network.populate(), "incidents", "networkLayerIncidents");
+					EsUtility.pushNetworkData(network.populate(), "incident", "NetworkLayerIncidents");
 
 				} else
 					log.warn("Network State Property is [OFF]");

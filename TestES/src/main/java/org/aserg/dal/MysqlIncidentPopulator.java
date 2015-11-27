@@ -28,7 +28,7 @@ public class MysqlIncidentPopulator {
 		Origin org;
 		String lastFetchTime = IOFileUtility.readProperty("mysqlTime", IOFileUtility.STATE_PATH);
 		log.debug("Run query to fetch mysql records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MYSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MYSQL_INCIDENT_QUERY, SqlUtility.getSqliteConnection(),
 				lastFetchTime);
 		String prev = null;
 		try {
@@ -73,7 +73,7 @@ public class MysqlIncidentPopulator {
 		}
 	
 		IOFileUtility.writeProperty("mysqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
-		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
+		SqlUtility.closeDbInstances(SqlUtility.getSqliteConnection());
 		log.debug("Number of new mysql incidents [{}], since last fetched at [{}] ", mysqlIncidentList.size(),
 				lastFetchTime);
 		log.info("MysqlIncident Population Successful");

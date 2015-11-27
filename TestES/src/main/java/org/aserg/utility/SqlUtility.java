@@ -36,10 +36,8 @@ public class SqlUtility {
 	 * dionaeaConnection will provide connection to the logsql.sqlite database of Dionaea
 	 * kippo,web,net will provide the connection of the mysql databases
 	 */
-	public static Connection dionaeaConnection = null;
-	public static Connection kippoConnection = null;
-	public static Connection webConnection = null;
-	public static Connection netConnection = null;
+	public static Connection sqliteConnection = null;
+	public static Connection mysqlConnection = null;
 	
 	/**
 	 * For creating the statement for the resultset 
@@ -52,6 +50,12 @@ public class SqlUtility {
 	 * For executing the queries
 	 */
 	private static ResultSet resultSet = null;
+
+	private static String host = IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH);
+
+	private static int port = Integer.parseInt(IOFileUtility.readProperty("PORT", IOFileUtility.ARCHIVAL_PATH));
+
+	private static String user = IOFileUtility.readProperty("USER", IOFileUtility.ARCHIVAL_PATH);
 	
 
 	/**
@@ -67,12 +71,13 @@ public class SqlUtility {
 			+ "left join virustotals on virustotals.virustotal_md5_hash=downloads.download_md5_hash "
 			+ "left join virustotalscans on virustotalscans.virustotal=virustotals.virustotal ";
 
-	public static final String MALWARE_INCIDENT_QUERY_COUNT = "select count(connections.connection) as total,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime "
+	public static final String MALWARE_INCIDENT_QUERY_COUNT = "select connections.connection as order_id, count(connections.connection) as total,"
+			+ "datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime "
 			+ "from connections " + "inner join downloads on downloads.connection=connections.connection "
 			+ "left join virustotals on virustotals.virustotal_md5_hash=downloads.download_md5_hash "
 			+ "left join virustotalscans on virustotalscans.virustotal=virustotals.virustotal ";
 
-	public static final String MSSQL_INCIDENT_QUERY = "select cmf.*, mssql_commands.mssql_command_status as status, "
+	public static final String MSSQL_INCIDENT_QUERY = "select cmf.connection as order_id ,cmf.*, mssql_commands.mssql_command_status as status, "
 			+ "mssql_commands.mssql_command_cmd as cmd "
 			+ "from (select connections.connection, remote_host,local_port, connection_protocol,"
 			+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime,"
@@ -97,7 +102,7 @@ public class SqlUtility {
 			+ "tcphdr.tcp_dport as tcp_local_port, udphdr.udp_dport as udp_local_port, 	"
 			+ "event.timestamp as connection_datetime,INET_NTOA(iphdr.ip_dst) as local_host,"
 			+ "tcphdr.tcp_sport as tcp_remote_port,	udphdr.udp_sport as udp_remote_port, "
-			+ "icmphdr.icmp_type,event.cid,event.sid, signature.sig_name, sig_class.sig_class_name "
+			+ "icmphdr.icmp_type,event.cid as order_id,event.sid, signature.sig_name, sig_class.sig_class_name "
 			+ "FROM event INNER JOIN iphdr on (event.cid=iphdr.cid AND event.sid=iphdr.sid) "
 			+ "LEFT JOIN icmphdr on (iphdr.cid = icmphdr.cid AND iphdr.sid=icmphdr.sid) LEFT JOIN tcphdr on (iphdr.cid = tcphdr.cid AND iphdr.sid = tcphdr.sid) "
 			+ "LEFT JOIN udphdr on (iphdr.cid = udphdr.cid AND iphdr.sid = udphdr.sid)  INNER JOIN signature on (event.signature = signature.sig_id) "
@@ -118,7 +123,7 @@ public class SqlUtility {
 			+ "left join rule_message on rule_message.message_ruleid=events_messages.h_message_ruleId "
 			+ "left join severity on severity.id_severity=events.`h_severity` ";
 
-	public static final String SIP_INCIDENT_QUERY = "select remote_host,local_port, connection_protocol,"
+	public static final String SIP_INCIDENT_QUERY = "select connections.connection as order_id, remote_host,local_port, connection_protocol,"
 			+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime,"
 			+ "connection_transport,local_host,remote_port,connections.connection,sip_commands.sip_command_method,"
 			+ "sip_commands.sip_command_user_agent," + "sip_commands.sip_command_call_id " + "FROM sip_commands "
@@ -138,17 +143,17 @@ public class SqlUtility {
 	 * @exception ClassNotFoundException,SQLException
 	 * @return dionaeaConnection
 	 */
-	public static Connection getDionaeaConnection() {
+	public static Connection getSqliteConnection() {
 		log.info("Trying to get Dionaea Connection...");
 		try {
-			if (dionaeaConnection == null || dionaeaConnection.isClosed()) {
+			if (sqliteConnection == null || sqliteConnection.isClosed()) {
 
 				Class.forName(IOFileUtility.readProperty("SQLITE_DRIVER", IOFileUtility.ARCHIVAL_PATH));
-				dionaeaConnection = DriverManager.getConnection(
+				sqliteConnection = DriverManager.getConnection(
 						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH),
 						"PRAGMA journal_mode=WAL", null);
 				Class.forName(IOFileUtility.readProperty("SQLITE_DRIVER", IOFileUtility.ARCHIVAL_PATH));
-				dionaeaConnection = DriverManager.getConnection(
+				sqliteConnection = DriverManager.getConnection(
 						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH),
 						"PRAGMA journal_mode=WAL", null);
 				// github.com/neostrange/Elasticsearch_DAL.git
@@ -160,94 +165,37 @@ public class SqlUtility {
 				log.error("Error occurred while trying to get Dionaea connection ", e);
 		}
 		log.info("Dionaea Connection Successfully Created");
-		return dionaeaConnection;
+		return sqliteConnection;
 	}
 
 	/**
 	 * <h2> getKippoConnection </h2>
-	 * Function will initialize the connection to the Kippo mysql Database
+	 * Function will initialize the connection to the all mysql Database
 	 * MysqlDataSource is reciprocal of DriverManager
 	 * @see https://docs.oracle.com/javase/tutorial/jdbc/basics/sqldatasources.html
 	 * 
 	 * @exception SqlException
-	 * @return KippoConnection
+	 * @return mysqlConnection
 	 */
-	public static Connection getKippoConnection() {
-		log.info("Trying to get Kippo Connection...");
+	public static Connection getMysqlConnection(String database, String password) {
+		log.info("Trying to get [{}] Connection...", database);
 		MysqlDataSource mds = null;
 		try {
-			if (kippoConnection == null || kippoConnection.isClosed()) {
+			if (mysqlConnection == null || mysqlConnection.isClosed()) {
 				mds = new MysqlDataSource();
-				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPortNumber(
-						Integer.parseInt(IOFileUtility.readProperty("SSH_PORT", IOFileUtility.ARCHIVAL_PATH)));
-				mds.setDatabaseName(IOFileUtility.readProperty("SSH_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
-				mds.setUser(IOFileUtility.readProperty("SSH_USER", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPassword(IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
-				kippoConnection = mds.getConnection();
+				mds.setServerName(host );
+				mds.setPortNumber(port );
+				mds.setDatabaseName(database);
+				mds.setUser(user );
+				mds.setPassword(password);
+				mysqlConnection = mds.getConnection();
 
 			}
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to get Kippo Connection ", e);
 		}
-		log.info("Kippo Connection Successfully Created");
-		return kippoConnection;
-
-	}
-	
-	/**
-	 * <h2> getNetConnection </h2>
-	 * Function will initialize the connection to the Mysql Database Snorby
-	 * @return netConnection
-	 */
-
-	public static Connection getNetConnection() {
-		log.info("Trying to get Network Connection...");
-		MysqlDataSource mds = null;
-		try {
-			if (netConnection == null || netConnection.isClosed()) {
-				mds = new MysqlDataSource();
-				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPortNumber(
-						Integer.parseInt(IOFileUtility.readProperty("NETWORK_PORT", IOFileUtility.ARCHIVAL_PATH)));
-				mds.setDatabaseName(IOFileUtility.readProperty("NETWORK_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
-				mds.setUser(IOFileUtility.readProperty("NETWORK_USER", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPassword(IOFileUtility.readProperty("NETWORK_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
-				netConnection = mds.getConnection();
-			}
-		} catch (SQLException e) {
-			log.error("Error occurred while trying to get Network Connection ", e);
-		}
-		log.info("Network Connection Successfully Created");
-		return netConnection;
-
-	}
-
-	/**
-	 * <h2> getWebConnection </h2>
-	 * Function will initialize the connection to the Mysql Database Waffle
-	 * @return netConnection
-	 */
-	public static Connection getWebConnection() {
-		log.info("Trying to get Web Connection...");
-		MysqlDataSource mds = null;
-		try {
-			if (webConnection == null || webConnection.isClosed()) {
-				mds = new MysqlDataSource();
-				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
-				mds.setServerName(IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPortNumber(
-						Integer.parseInt(IOFileUtility.readProperty("WEB_PORT", IOFileUtility.ARCHIVAL_PATH)));
-				mds.setDatabaseName(IOFileUtility.readProperty("WEB_DB_NAME", IOFileUtility.ARCHIVAL_PATH));
-				mds.setUser(IOFileUtility.readProperty("WEB_USER", IOFileUtility.ARCHIVAL_PATH));
-				mds.setPassword(IOFileUtility.readProperty("WEB_PASSWORD", IOFileUtility.ARCHIVAL_PATH));
-				webConnection = mds.getConnection();
-			}
-		} catch (SQLException e) {
-			log.error("Error occurred while trying to get Web Connection ", e);
-		}
-		log.info("Web Connection Created Successfully");
-		return webConnection;
+		log.info("[{}] Connection Successfully Created",database);
+		return mysqlConnection;
 
 	}
 	
@@ -282,8 +230,7 @@ public class SqlUtility {
 	 * @return resultSet
 	 */
 	public static ResultSet getResultSet(String query, Connection con, String time) {
-
-		String schema = null;
+        long startTime = System.currentTimeMillis();
 		String tempQuery = null;
 		// for MySQL databases
 
@@ -292,8 +239,11 @@ public class SqlUtility {
 		else
 			tempQuery = query + " Where connection_datetime > ?";
 
-		if (query.contains("as order_id"))
-			tempQuery = tempQuery + " order by order_id asc";
+		if (query.contains("session") )
+			tempQuery = tempQuery + " order by connection_datetime asc";
+		
+		else 
+			tempQuery = tempQuery + " order by order_id asc";	
 
 		try {
 			preparedStatement = con.prepareStatement(tempQuery);
@@ -305,16 +255,16 @@ public class SqlUtility {
 		}
 
 		try {
-			log.info("Query [{}] to be executed in database", tempQuery);
+			log.info("Query to be executed: [{}]", tempQuery);
 			resultSet = preparedStatement.executeQuery();
 
 		} catch (MySQLSyntaxErrorException e) {
-			log.error("Error occurred while trying to execute query '{}' in database ", tempQuery, e);
+			log.error("Error occurred while trying to execute query [{}] in database ", tempQuery, e);
 
 		} catch (SQLException e) {
-			log.error("Error occurred while trying to execute query '{}' in database ", tempQuery, e);
+			log.error("Error occurred while trying to execute query [{}] in database ", tempQuery, e);
 		}
-		log.info("Query executed successfully");
+		log.info("Query executed successfully in [{}] ms", (System.currentTimeMillis()-startTime));
 		return resultSet;
 	}
 

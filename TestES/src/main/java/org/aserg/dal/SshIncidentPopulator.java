@@ -31,11 +31,14 @@ public class SshIncidentPopulator {
 		String stime = null, etime = null;
 		Origin org = null;
 		log.info("Run query to fetch ssh records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, SqlUtility.getKippoConnection(),
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, 
+				SqlUtility.getMysqlConnection(IOFileUtility.readProperty("SSH_DB_NAME", IOFileUtility.ARCHIVAL_PATH),
+				IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH)),
 				lastFetchTime);
 		String prev = null;
 		String sensorIP = IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH);
 		boolean authenticated = false;
+		
 		try {
 			log.debug("SSH traversal started");
 			while (rs.next()) {
@@ -123,7 +126,7 @@ public class SshIncidentPopulator {
 		}
 		IOFileUtility.writeProperty("sshTime",stime,
 				IOFileUtility.STATE_PATH);
-		SqlUtility.closeDbInstances(SqlUtility.getKippoConnection());
+		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
 		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", sshIncidentList.size(),
 				lastFetchTime);
 		log.info("SshIncident Population Successful");
