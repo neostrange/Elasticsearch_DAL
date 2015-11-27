@@ -31,8 +31,11 @@ public class MysqlIncidentPopulator {
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MYSQL_INCIDENT_QUERY, SqlUtility.getSqliteConnection(),
 				lastFetchTime);
 		String prev = null;
+		String remotehost = null;
 		try {
 			while (rs.next()) {
+				
+				remotehost= rs.getString("cmc.remote_host").split(":f")[1];
 				mysqlCommand = new MysqlCommand(rs.getString("mysql_command_args.mysql_command_arg_data"),
 						rs.getString("mysql_command_ops.mysql_command_op_name"));
 				// in case of new connection
@@ -44,10 +47,10 @@ public class MysqlIncidentPopulator {
 
 					}
 					mysqlCommandList = new ArrayList<MysqlCommand>();
-					org = EnrichmentUtility.getOrigin(rs.getString("cmc.remote_host"));
+					org = EnrichmentUtility.getOrigin(remotehost);
 					org = org == null ? null : org;
 					lastFetchTime = rs.getString("connection_datetime");
-					mysqlIncident = new MysqlIncident(lastFetchTime.replace(' ', 'T'), rs.getString("cmc.remote_host"),
+					mysqlIncident = new MysqlIncident(lastFetchTime.replace(' ', 'T'),remotehost,
 							rs.getInt("cmc.remote_port"), rs.getString("cmc.connection_protocol"),
 							rs.getString("cmc.local_host"), rs.getInt("cmc.local_port"),
 							rs.getString("cmc.connection_transport"), org, null);

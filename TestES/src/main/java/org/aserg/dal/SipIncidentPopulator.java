@@ -34,12 +34,15 @@ public class SipIncidentPopulator {
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.getSqliteConnection(),
 				lastFetchTime);
 		Origin org = null;
+		String remotehost = null;
 		try {
 			while (rs.next()) {
-				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
+				
+				remotehost= rs.getString("cmc.remote_host").split(":f")[1];
+				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				datetime = rs.getString("connection_datetime");
-				sipIncident = new SipIncident(datetime.replace(' ', 'T'), rs.getString("remote_host"), rs.getInt("remote_port"),
+				sipIncident = new SipIncident(datetime.replace(' ', 'T'), remotehost, rs.getInt("remote_port"),
 						rs.getString("connection_protocol"), rs.getString("local_host"), rs.getInt("local_port"),
 						rs.getString("connection_transport"), org, rs.getString("sip_command_call_id"),
 						rs.getString("sip_command_method"), rs.getString("sip_command_user_agent"));

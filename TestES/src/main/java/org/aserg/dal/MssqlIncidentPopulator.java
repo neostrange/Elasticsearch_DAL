@@ -26,12 +26,14 @@ public class MssqlIncidentPopulator {
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.getSqliteConnection(),
 				lastFetchTime);
 		Origin org = null;
+		String remotehost = null;
 		try {
 			while (rs.next()) {
-				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
+				remotehost= rs.getString("remote_host").split(":f")[1];
+				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				lastFetchTime = rs.getString("connection_datetime");
-				mssqlIncident = new MssqlIncident(lastFetchTime.replace(' ', 'T'), rs.getString("remote_host"),
+				mssqlIncident = new MssqlIncident(lastFetchTime.replace(' ', 'T'), remotehost,
 						rs.getInt("remote_port"), rs.getString("connection_protocol"), rs.getString("local_host"),
 						rs.getInt("local_port"), rs.getString("connection_transport"), org,
 						rs.getString("mssql_fingerprint_cltintname"), rs.getString("cmd"), rs.getString("status"),
