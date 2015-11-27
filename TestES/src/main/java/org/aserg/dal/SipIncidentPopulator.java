@@ -29,6 +29,7 @@ public class SipIncidentPopulator {
 		List<SipIncident> sipIncidentList = new ArrayList<SipIncident>();
 		String lastFetchTime = IOFileUtility.readProperty("sipTime", IOFileUtility.STATE_PATH);
 		SipIncident sipIncident;
+		String datetime = null;
 		log.debug("Run query to fetch sip records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SIP_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				lastFetchTime);
@@ -38,16 +39,14 @@ public class SipIncidentPopulator {
 			while (rs.next()) {
 				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 				org = org == null ? null : org;
-				String datetime = rs.getString("connection_datetime").replace(' ', 'T');
-				sipIncident = new SipIncident(datetime, rs.getString("remote_host"), rs.getInt("remote_port"),
+				datetime = rs.getString("connection_datetime");
+				sipIncident = new SipIncident(datetime.replace(' ', 'T'), rs.getString("remote_host"), rs.getInt("remote_port"),
 						rs.getString("connection_protocol"), rs.getString("local_host"), rs.getInt("local_port"),
 						rs.getString("connection_transport"), org, rs.getString("sip_command_call_id"),
 						rs.getString("sip_command_method"), rs.getString("sip_command_user_agent"));
 
-				IOFileUtility.writeProperty("sipTime", rs.getString("connection_datetime"), IOFileUtility.STATE_PATH);
 				sipIncidentList.add(sipIncident);
-				log.debug("Added SipIncident to list , connection [{}]", rs.getString("connection"));
-
+				log.debug("Added SipIncident to list, connection [{}]", rs.getString("connection"));
 			}
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through sip records ", e);
@@ -55,6 +54,7 @@ public class SipIncidentPopulator {
 		log.debug("Number of new sip incidents [{}], since last fetched at [{}] ", sipIncidentList.size(),
 				lastFetchTime);
 		EnrichmentUtility.closeLookupService();
+		IOFileUtility.writeProperty("sipTime", datetime, IOFileUtility.STATE_PATH);
 		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
 		log.info("SipIncident Population Successful");
 		return sipIncidentList;

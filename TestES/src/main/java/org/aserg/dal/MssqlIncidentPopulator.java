@@ -26,7 +26,6 @@ public class MssqlIncidentPopulator {
 		EnrichmentUtility.initLookupService();
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MSSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				lastFetchTime);
-		IOFileUtility.writeProperty("mssqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
 		Origin org = null;
 		try {
 			while (rs.next()) {
@@ -48,6 +47,7 @@ public class MssqlIncidentPopulator {
 		log.debug("Number of new mssql incidents [{}], since last fetched at [{}] ", mssqlIncidentList.size(),
 				lastFetchTime);
 		SqlUtility.closeConnection(SqlUtility.getDionaeaConnection());
+		IOFileUtility.writeProperty("mssqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
 		log.info("MssqlIncident Population Successful");
 		return mssqlIncidentList;
 	}

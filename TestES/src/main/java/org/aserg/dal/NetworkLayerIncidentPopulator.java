@@ -61,12 +61,11 @@ public class NetworkLayerIncidentPopulator {
 				}
 				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 				org = org == null ? null : org;
-				networkLayerIncident = new NetworkLayerIncident(rs.getString("connection_datetime").replace(' ', 'T'),
+				lastFetchTime = rs.getString("connection_datetime");
+				networkLayerIncident = new NetworkLayerIncident(lastFetchTime.replace(' ', 'T'),
 						rs.getString("remote_host"), remotePort, protocol, rs.getString("local_host"), localPort,
 						transport, org, rs.getInt("cid"), rs.getInt("sid"), rs.getString("sig_name"),
 						rs.getString("sig_class_name"), type);
-				IOFileUtility.writeProperty("networkTime", rs.getString("connection_datetime"),
-						IOFileUtility.STATE_PATH);
 				networkLayerIncidentList.add(networkLayerIncident);
 				log.debug("Added NetworkLayerIncident to list , cid [{}], sid [{}]", rs.getString("cid"),
 						rs.getString("sid"));
@@ -77,6 +76,8 @@ public class NetworkLayerIncidentPopulator {
 		}
 		EnrichmentUtility.closeLookupService();
 		SqlUtility.closeConnection(SqlUtility.getNetConnection());
+		IOFileUtility.writeProperty("networkTime", lastFetchTime,
+				IOFileUtility.STATE_PATH);
 		log.debug("Number of new network incidents [{}], since last fetched at [{}] ", networkLayerIncidentList.size(),
 				lastFetchTime);
 		log.info("NetworkLayerIncident Population Successful");

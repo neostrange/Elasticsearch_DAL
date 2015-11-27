@@ -36,7 +36,7 @@ public class ArchivalAgent {
 
 				log.warn("Malware State Property is [ON]");
 				MalwareIncidentPopulator malware = new MalwareIncidentPopulator();
-				EsUtility.pushMalwareData(malware.populate(), "incident", "malwareIncidents");
+				EsUtility.pushMalwareData(malware.populate(), "incidents", "malwareIncidents");
 
 			} else
 				log.warn("Malware State Property is [OFF]");
