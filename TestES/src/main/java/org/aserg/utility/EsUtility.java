@@ -39,7 +39,7 @@ import com.google.gson.Gson;
  */
 public class EsUtility {
 
-	private static ESLogger logger;
+	private static ESLogger log;
 	private static TransportClient client;
 
 	/**
@@ -82,17 +82,15 @@ public class EsUtility {
 	 */
 	static {
 
-		logger = Loggers.getLogger(EsUtility.class);
+		log = Loggers.getLogger(EsUtility.class);
 		// Load ES Properties
 		Properties prop = new Properties();
 		try {
 			prop.load(new FileInputStream("config/es.properties"));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error while trying to read ES properties", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error while trying to read ES properties", e);
 		}
 
 		// initialize variables from properties file
@@ -112,19 +110,19 @@ public class EsUtility {
 	private final static BulkProcessor.Listener listener = new BulkProcessor.Listener() {
 
 		public void beforeBulk(long executionId, BulkRequest request) {
-			logger.info("Bulk flush triggered [" + executionId + "], where number of requests is "
+			log.info("Bulk flush triggered [" + executionId + "], where number of requests is "
 					+ request.numberOfActions());
 		}
 
 		public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-			logger.error("Error during bulk insert: " + executionId, failure);
+			log.error("Error during bulk insert: " + executionId, failure);
 		}
 
 		public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
 			if (response.hasFailures()) {
 				throw new RuntimeException(response.buildFailureMessage());
 			} else {
-				logger.info("Bulk execution completed [" + executionId + "].\n" + "Took (ms): "
+				log.info("Bulk execution completed [" + executionId + "].\n" + "Took (ms): "
 						+ response.getTookInMillis() + "\n" + "Failures: " + response.hasFailures() + "\n" + "Count: "
 						+ response.getItems().length);
 			}
@@ -154,6 +152,19 @@ public class EsUtility {
 		bulkProcessor.flush();
 		bulkProcessor.awaitClose(30, TimeUnit.SECONDS);
 		client.close();
+	}
+
+	public static void pushDocument(String doc, String index, String type) {
+		// check if ES nodes available
+		if (client.listedNodes().size() > 0) {
+			log.info("Added doc into BulkProcessor index [{}], type [{}]", index, type);
+			bulkProcessor.add(new IndexRequest(index, type).source(doc));
+
+		} else {
+			log.warn("Couldn't find any available ElasticSearch nodes for pushing document");
+			// TODO try to look for available nodes/ establish connection
+			// again...
+		}
 	}
 
 	/**
@@ -213,8 +224,7 @@ public class EsUtility {
 		closeBulkProcessor();
 	}
 
-	public static void pushWebData(List<WebIncident> list, String index, String type)
-			throws InterruptedException {
+	public static void pushWebData(List<WebIncident> list, String index, String type) throws InterruptedException {
 		initBulkProcessor();
 		for (WebIncident i : list) {
 			bulkProcessor.add(new IndexRequest(index, type).source(new Gson().toJson(i)));
