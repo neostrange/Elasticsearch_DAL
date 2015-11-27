@@ -25,11 +25,12 @@ public class MysqlIncidentPopulator {
 		List<MysqlIncident> mysqlIncidentList = new ArrayList<MysqlIncident>();
 		MysqlCommand mysqlCommand = null;
 		List<MysqlCommand> mysqlCommandList = null;
+		Origin org;
 		String lastFetchTime = IOFileUtility.readProperty("mysqlTime", IOFileUtility.STATE_PATH);
 		log.debug("Run query to fetch mysql records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.MYSQL_INCIDENT_QUERY, SqlUtility.getDionaeaConnection(),
 				lastFetchTime);
-
+		EnrichmentUtility.initLookupService();
 		String prev = null;
 		try {
 			while (rs.next()) {
@@ -40,19 +41,18 @@ public class MysqlIncidentPopulator {
 					if (mysqlIncident != null) {
 						mysqlIncidentList.add(mysqlIncident);
 						log.debug("Added MysqlIncident to list, connection [{}], commands [{}]",
-								rs.getString("connection"), mysqlIncident.getMysqlCommands().size());
+								rs.getString("cmc.connection"), mysqlIncident.getMysqlCommands().size());
 
 					}
 					mysqlCommandList = new ArrayList<MysqlCommand>();
-					Origin org = EnrichmentUtility.getOrigin(rs.getString("cmc.remote_host"));
+					org = EnrichmentUtility.getOrigin(rs.getString("cmc.remote_host"));
 					org = org == null ? null : org;
-					mysqlIncident = new MysqlIncident(rs.getString("connection_datetime").replace(' ', 'T'),
-							rs.getString("cmc.remote_host"), rs.getInt("cmc.remote_port"),
-							rs.getString("cmc.connection_protocol"), rs.getString("cmc.local_host"),
-							rs.getInt("cmc.local_port"), rs.getString("cmc.connection_transport"), org, null);
+					lastFetchTime = rs.getString("connection_datetime");
+					mysqlIncident = new MysqlIncident(lastFetchTime.replace(' ', 'T'), rs.getString("cmc.remote_host"),
+							rs.getInt("cmc.remote_port"), rs.getString("cmc.connection_protocol"),
+							rs.getString("cmc.local_host"), rs.getInt("cmc.local_port"),
+							rs.getString("cmc.connection_transport"), org, null);
 					prev = rs.getString("cmc.connection");
-					IOFileUtility.writeProperty("mysqlTime", rs.getString("connection_datetime"),
-							IOFileUtility.STATE_PATH);
 					// add mysql command
 					mysqlCommandList.add(mysqlCommand);
 					mysqlIncident.setMysqlCommands(mysqlCommandList);
@@ -72,6 +72,10 @@ public class MysqlIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mysql records", e);
 		}
+		
+
+		EnrichmentUtility.closeLookupService();
+		IOFileUtility.writeProperty("mysqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
 		SqlUtility.closeDbInstances(SqlUtility.getDionaeaConnection());
 		log.debug("Number of new mysql incidents [{}], since last fetched at [{}] ", mysqlIncidentList.size(),
 				lastFetchTime);

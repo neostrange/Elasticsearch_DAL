@@ -41,6 +41,7 @@ public class WebIncidentPopulator {
 		log.debug("Run query to fetch web records");
 		ResultSet rs = SqlUtility.getResultSet(SqlUtility.WEB_INCIDENT_QUERY, SqlUtility.getWebConnection(),
 				lastFetchTime);
+		EnrichmentUtility.initLookupService();
 		String prev = null;
 		try {
 			while (rs.next()) {
@@ -58,14 +59,13 @@ public class WebIncidentPopulator {
 					}
 					Origin org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 					org = org == null ? null : org;
-					webIncident = new WebIncident(rs.getString("connection_datetime").replace(' ', 'T'),
-							rs.getString("remote_host"), rs.getInt("a_server_port"), rs.getString("b_protocol"),
-							rs.getString("client_ip"), rs.getInt("a_client_port"), "tcp", org,
-							rs.getInt("f_content_length"), rs.getString("f_content_type"), rs.getString("b_method"),
-							rs.getString("b_path_parameter"), rs.getString("b_referer"), null, rs.getInt("id_severity"),
-							rs.getString("severity"), rs.getString("b_user_agent"));
-					IOFileUtility.writeProperty("webTime", rs.getString("connection_datetime"),
-							IOFileUtility.STATE_PATH);
+					lastFetchTime = rs.getString("connection_datetime");
+					webIncident = new WebIncident(lastFetchTime.replace(' ', 'T'), rs.getString("remote_host"),
+							rs.getInt("a_server_port"), rs.getString("b_protocol"), rs.getString("client_ip"),
+							rs.getInt("a_client_port"), "tcp", org, rs.getInt("f_content_length"),
+							rs.getString("f_content_type"), rs.getString("b_method"), rs.getString("b_path_parameter"),
+							rs.getString("b_referer"), null, rs.getInt("id_severity"), rs.getString("severity"),
+							rs.getString("b_user_agent"));
 					prev = rs.getString("order_id");
 					// add webrule
 					if (rs.getString("message_ruleMsg") != null) {
@@ -93,6 +93,10 @@ public class WebIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through web records ", e);
 		}
+
+
+		IOFileUtility.writeProperty("webTime", lastFetchTime, IOFileUtility.STATE_PATH);
+		EnrichmentUtility.closeLookupService();
 		SqlUtility.closeDbInstances(SqlUtility.getWebConnection());
 		log.debug("Number of new web incidents [{}], since last fetched at [{}] ", webIncidentList.size(),
 				lastFetchTime);

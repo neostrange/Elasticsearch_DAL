@@ -120,7 +120,7 @@ public class SqlUtility {
 
 	public static final String SIP_INCIDENT_QUERY = "select remote_host,local_port, connection_protocol,"
 			+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime,"
-			+ "connection_transport,local_host,remote_port," + "sip_commands.sip_command_method,"
+			+ "connection_transport,local_host,remote_port,connections.connection,sip_commands.sip_command_method,"
 			+ "sip_commands.sip_command_user_agent," + "sip_commands.sip_command_call_id " + "FROM sip_commands "
 			+ "INNER JOIN connections on (sip_commands.connection=connections.connection)";
 
