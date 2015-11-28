@@ -39,7 +39,7 @@ public class MysqlIncidentPopulator {
 			while (rs.next()) {
 
 				if (rs.getString("cmc.remote_host").contains(":"))
-					remotehost = rs.getString("cmc.remote_host").split(":f")[1];
+					remotehost = rs.getString("cmc.remote_host").split("f:")[1];
 				else
 					remotehost = rs.getString("cmc.remote_host");
 				mysqlCommand = new MysqlCommand(rs.getString("mysql_command_args.mysql_command_arg_data"),
