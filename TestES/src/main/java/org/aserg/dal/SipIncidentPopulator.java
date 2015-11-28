@@ -42,7 +42,7 @@ public class SipIncidentPopulator {
 			while (rs.next()) {
 
 				if (rs.getString("remote_host").contains(":"))
-					remotehost = rs.getString("remote_host").split(":f")[1];
+					remotehost = rs.getString("remote_host").split("f:")[1];
 				else
 					remotehost = rs.getString("remote_host");
 				org = EnrichmentUtility.getOrigin(remotehost);
