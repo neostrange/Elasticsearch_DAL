@@ -80,15 +80,32 @@ public class IOFileUtility {
 
 	public static String readProperty(String source, String propFile) {
 		log.debug("Read property [{}], from property file [{}]", source, propFile);
-		BufferedReader br;
+		BufferedReader br = null;
+		FileReader fileReader = null;
+		try {
+			fileReader = new FileReader(propFile);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		Properties p = new Properties();
 		try {
-			br = new BufferedReader(new FileReader(propFile));
+			br = new BufferedReader(fileReader);
 			p.load(br);
 		} catch (FileNotFoundException e) {
 			log.error("Error occurred while trying to read from property file [{}] ", propFile, e);
 		} catch (IOException e) {
 			log.error("Error occurred while trying to read from property file [{}] ", propFile, e);
+		} finally {
+
+			if (br != null ) {
+				try {
+					fileReader.close();
+					br.close();
+				} catch (IOException e) {
+					log.error("Error occurred while trying to close Buffered Reader / File Reader", e);
+				}
+			}
 		}
 		return p.getProperty(source);
 	}
