@@ -115,14 +115,12 @@ public class SqlUtility {
 			+ "LEFT JOIN auth ON auth.session = sessions.id " + "LEFT JOIN input ON input.session = sessions.id  "
 			+ "LEFT JOIN clients ON clients.id = sessions.client ";
 
-	public static final String WEB_INCIDENT_QUERY = "SELECT events.event_id as order_id,a_timestamp as connection_datetime,"
-			+ "INET_NTOA(a_client_ip) as client_ip,a_client_port,INET_NTOA(a_server_ip) as remote_host ,a_server_port,"
-			+ "b_method,b_path, b_path_parameter,b_protocol, b_user_agent,b_referer,f_content_length,"
-			+ "f_content_type, f_status,id_severity,severity.severity,message_ruleMsg" 
-			+ " from events "
-			+ "left join events_messages on events_messages.event_id=events.event_id "
+	public static final String WEB_INCIDENT_QUERY = "SELECT events.event_id as order_id,a_timestamp as connection_datetime, INET_NTOA(a_client_ip) as remote_host,a_client_port as remote_port,"
+			+ "INET_NTOA(a_server_ip) as local_host,a_server_port as local_port, b_method,b_path, b_path_parameter,b_protocol, b_user_agent,b_referer,"
+			+ "f_content_length, f_content_type, f_status,id_severity,severity.severity,message_ruleMsg "
+			+ "from events left join events_messages on events_messages.event_id=events.event_id "
 			+ "left join rule_message on rule_message.message_ruleId=events_messages.h_message_ruleId "
-			+ "left join severity on severity.id_severity=events.`h_severity` ";
+			+ "left join severity on severity.id_severity=events.`h_severity`";
 
 	public static final String SIP_INCIDENT_QUERY = "select connections.connection as order_id, remote_host,local_port, connection_protocol,"
 			+ "connection_type,datetime(connection_timestamp,'unixepoch','localtime') as connection_datetime,"
@@ -233,16 +231,16 @@ public class SqlUtility {
 	public static ResultSet getResultSet(String query, Connection con, String time) {
         long startTime = System.currentTimeMillis();
 		String tempQuery = null;
-		// for MySQL databases
-
+		
+		// Adding time constraint in query for MySQL (having) and SQLite (where) databases 
 		if (query.contains("severity") || query.contains("session") || query.contains("icmp"))
 			tempQuery = query + " Having connection_datetime > ?";
 		else
 			tempQuery = query + " Where connection_datetime > ?";
-
-		if (query.contains("session") )
-			tempQuery = tempQuery + " order by connection_datetime asc";
 		
+		//Adding order to query, alias order_id for all except ssh
+		if (query.contains("session") )
+			tempQuery = tempQuery + " order by connection_datetime asc";		
 		else 
 			tempQuery = tempQuery + " order by order_id asc";	
 

@@ -53,7 +53,7 @@ public class MssqlIncidentPopulator {
 						rs.getString("mssql_fingerprint_hostname"));
 				EsUtility.pushDocument(new Gson().toJson(mssqlIncident), index, type);
 				count++;
-				log.debug("Added MssqlIncident to list, connection [{}]", rs.getString("order_id"));
+				log.debug("Added MssqlIncident to BulkProcessor, connection [{}]", rs.getString("order_id"));
 			}
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mssql records", e);

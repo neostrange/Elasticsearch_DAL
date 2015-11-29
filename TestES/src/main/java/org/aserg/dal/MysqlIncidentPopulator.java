@@ -57,7 +57,7 @@ public class MysqlIncidentPopulator {
 					if (mysqlIncident != null) {
 						EsUtility.pushDocument(new Gson().toJson(mysqlIncident), index, type);
 						count++;
-						log.debug("Added MysqlIncident to list, connection [{}], commands [{}]",
+						log.debug("Added MysqlIncident to BulkProcessor, connection [{}], commands [{}]",
 								rs.getString("cmc.connection"), mysqlIncident.getMysqlCommands().size());
 
 					}

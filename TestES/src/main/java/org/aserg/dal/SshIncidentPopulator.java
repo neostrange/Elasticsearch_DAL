@@ -39,7 +39,7 @@ public class SshIncidentPopulator {
 				IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH)),
 				lastFetchTime);
 		String prev = null;
-		String sensorIP = IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH);
+		String sensorIP = IOFileUtility.readProperty("SSH_HOST", IOFileUtility.ARCHIVAL_PATH);
 		boolean authenticated = false;
 		
 		try {
@@ -85,7 +85,7 @@ public class SshIncidentPopulator {
 						}
 						EsUtility.pushDocument(new Gson().toJson(sshIncident), index, type);
 						count++;
-						log.debug("Added SshIncident, session [{}] to list ", prev);
+						log.debug("Added SshIncident, session [{}] to BulkProcessor ", prev);
 						authList = null;
 						inputList = null;
 						authenticated = false;

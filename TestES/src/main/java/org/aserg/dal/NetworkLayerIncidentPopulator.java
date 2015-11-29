@@ -73,7 +73,7 @@ public class NetworkLayerIncidentPopulator {
 						rs.getString("sig_class_name"), icmp);
 				EsUtility.pushDocument(new Gson().toJson(networkLayerIncident), index, type);
 				count++;
-				log.debug("Added NetworkLayerIncident to list , cid [{}], sid [{}]", rs.getString("order_id"),
+				log.debug("Added NetworkLayerIncident to BulkProcessor , cid [{}], sid [{}]", rs.getString("order_id"),
 						rs.getString("sid"));
 
 			}

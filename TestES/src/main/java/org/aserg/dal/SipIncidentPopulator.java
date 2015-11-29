@@ -63,7 +63,7 @@ public class SipIncidentPopulator {
 
 				EsUtility.pushDocument(new Gson().toJson(sipIncident), index, type);
 				count++;
-				log.debug("Added SipIncident to list, connection [{}]", rs.getString("order_id"));
+				log.debug("Added SipIncident to BulkProcessor, connection [{}]", rs.getString("order_id"));
 			}
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through sip records ", e);
