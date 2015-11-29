@@ -29,6 +29,7 @@ public class MssqlIncidentPopulator {
 				lastFetchTime);
 		Origin org = null;
 		String remotehost = null;
+		String localhost = null;
 		int count = 0;
 		try {
 			while (rs.next()) {
@@ -36,11 +37,17 @@ public class MssqlIncidentPopulator {
 					remotehost= rs.getString("remote_host").split("f:")[1];
 				else
 					remotehost= rs.getString("remote_host");
+				
+				if (rs.getString("local_host").contains(":"))
+					localhost = rs.getString("local_host").split("f:")[1];
+				else
+					localhost = rs.getString("local_host");
+				
 				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				lastFetchTime = rs.getString("connection_datetime");
 				mssqlIncident = new MssqlIncident(lastFetchTime.replace(' ', 'T'), remotehost,
-						rs.getInt("remote_port"), rs.getString("connection_protocol"), rs.getString("local_host"),
+						rs.getInt("remote_port"), rs.getString("connection_protocol"), localhost,
 						rs.getInt("local_port"), rs.getString("connection_transport"), org,
 						rs.getString("mssql_fingerprint_cltintname"), rs.getString("cmd"), rs.getString("status"),
 						rs.getString("mssql_fingerprint_hostname"));
@@ -68,17 +75,24 @@ public class MssqlIncidentPopulator {
 				lastFetchTime);
 		Origin org = null;
 		String remotehost = null;
+		String localhost= null;
 		try {
 			while (rs.next()) {
 				if(rs.getString("remote_host").contains(":"))
 					remotehost= rs.getString("remote_host").split("f:")[1];
 				else
 					remotehost= rs.getString("remote_host");
+				
+				if (rs.getString("local_host").contains(":"))
+					localhost = rs.getString("local_host").split("f:")[1];
+				else
+					localhost = rs.getString("local_host");
+				
 				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				lastFetchTime = rs.getString("connection_datetime");
 				mssqlIncident = new MssqlIncident(lastFetchTime.replace(' ', 'T'), remotehost,
-						rs.getInt("remote_port"), rs.getString("connection_protocol"), rs.getString("local_host"),
+						rs.getInt("remote_port"), rs.getString("connection_protocol"), localhost,
 						rs.getInt("local_port"), rs.getString("connection_transport"), org,
 						rs.getString("mssql_fingerprint_cltintname"), rs.getString("cmd"), rs.getString("status"),
 						rs.getString("mssql_fingerprint_hostname"));

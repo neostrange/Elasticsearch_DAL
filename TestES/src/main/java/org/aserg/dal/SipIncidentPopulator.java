@@ -37,6 +37,7 @@ public class SipIncidentPopulator {
 				lastFetchTime);
 		Origin org = null;
 		String remotehost = null;
+		String localhost = null;
 		int count = 0;
 		try {
 			while (rs.next()) {
@@ -45,11 +46,18 @@ public class SipIncidentPopulator {
 					remotehost = rs.getString("remote_host").split("f:")[1];
 				else
 					remotehost = rs.getString("remote_host");
+				
+
+				if (rs.getString("local_host").contains(":"))
+					localhost = rs.getString("local_host").split("f:")[1];
+				else
+					localhost = rs.getString("local_host");
+				
 				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				datetime = rs.getString("connection_datetime");
 				sipIncident = new SipIncident(datetime.replace(' ', 'T'), remotehost, rs.getInt("remote_port"),
-						rs.getString("connection_protocol"), rs.getString("local_host"), rs.getInt("local_port"),
+						rs.getString("connection_protocol"), localhost, rs.getInt("local_port"),
 						rs.getString("connection_transport"), org, rs.getString("sip_command_call_id"),
 						rs.getString("sip_command_method"), rs.getString("sip_command_user_agent"));
 
@@ -78,6 +86,7 @@ public class SipIncidentPopulator {
 				lastFetchTime);
 		Origin org = null;
 		String remotehost = null;
+		String localhost = null;
 		try {
 			while (rs.next()) {
 
@@ -85,11 +94,17 @@ public class SipIncidentPopulator {
 					remotehost = rs.getString("remote_host").split("f:")[1];
 				else
 					remotehost = rs.getString("remote_host");
+				
+				if (rs.getString("local_host").contains(":"))
+					localhost = rs.getString("local_host").split("f:")[1];
+				else
+					localhost = rs.getString("local_host");
+				
 				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				datetime = rs.getString("connection_datetime");
 				sipIncident = new SipIncident(datetime.replace(' ', 'T'), remotehost, rs.getInt("remote_port"),
-						rs.getString("connection_protocol"), rs.getString("local_host"), rs.getInt("local_port"),
+						rs.getString("connection_protocol"), localhost, rs.getInt("local_port"),
 						rs.getString("connection_transport"), org, rs.getString("sip_command_call_id"),
 						rs.getString("sip_command_method"), rs.getString("sip_command_user_agent"));
 

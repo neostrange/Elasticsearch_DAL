@@ -34,7 +34,9 @@ public class MysqlIncidentPopulator {
 				lastFetchTime);
 		String prev = null;
 		String remotehost = null;
+		String localhost = null;
 		int count = 0;
+		
 		try {
 			while (rs.next()) {
 
@@ -42,6 +44,12 @@ public class MysqlIncidentPopulator {
 					remotehost = rs.getString("cmc.remote_host").split("f:")[1];
 				else
 					remotehost = rs.getString("cmc.remote_host");
+		
+				if (rs.getString("cmc.local_host").contains(":"))
+					localhost = rs.getString("cmc.local_host").split("f:")[1];
+				else
+					localhost = rs.getString("cmc.local_host");
+				
 				mysqlCommand = new MysqlCommand(rs.getString("mysql_command_args.mysql_command_arg_data"),
 						rs.getString("mysql_command_ops.mysql_command_op_name"));
 				// in case of new connection
@@ -59,7 +67,7 @@ public class MysqlIncidentPopulator {
 					lastFetchTime = rs.getString("connection_datetime");
 					mysqlIncident = new MysqlIncident(lastFetchTime.replace(' ', 'T'), remotehost,
 							rs.getInt("cmc.remote_port"), rs.getString("cmc.connection_protocol"),
-							rs.getString("cmc.local_host"), rs.getInt("cmc.local_port"),
+							localhost, rs.getInt("cmc.local_port"),
 							rs.getString("cmc.connection_transport"), org, null);
 					prev = rs.getString("cmc.connection");
 					// add mysql command
@@ -103,6 +111,7 @@ public class MysqlIncidentPopulator {
 				lastFetchTime);
 		String prev = null;
 		String remotehost = null;
+		String localhost = null;
 		try {
 			while (rs.next()) {
 
@@ -110,6 +119,12 @@ public class MysqlIncidentPopulator {
 					remotehost = rs.getString("cmc.remote_host").split("f:")[1];
 				else
 					remotehost = rs.getString("cmc.remote_host");
+				
+				if (rs.getString("cmc.local_host").contains(":"))
+					localhost = rs.getString("cmc.local_host").split("f:")[1];
+				else
+					localhost = rs.getString("cmc.local_host");
+				
 				mysqlCommand = new MysqlCommand(rs.getString("mysql_command_args.mysql_command_arg_data"),
 						rs.getString("mysql_command_ops.mysql_command_op_name"));
 				// in case of new connection
@@ -126,7 +141,7 @@ public class MysqlIncidentPopulator {
 					lastFetchTime = rs.getString("connection_datetime");
 					mysqlIncident = new MysqlIncident(lastFetchTime.replace(' ', 'T'), remotehost,
 							rs.getInt("cmc.remote_port"), rs.getString("cmc.connection_protocol"),
-							rs.getString("cmc.local_host"), rs.getInt("cmc.local_port"),
+							localhost, rs.getInt("cmc.local_port"),
 							rs.getString("cmc.connection_transport"), org, null);
 					prev = rs.getString("cmc.connection");
 					// add mysql command
