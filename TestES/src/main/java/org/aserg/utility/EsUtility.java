@@ -158,6 +158,9 @@ public class EsUtility {
 			} else {
 				log.info("Bulk execution completed [{}].\nTook (ms): {} \nFailures: {}\nCount: {}", executionId,
 						response.getTookInMillis(), response.hasFailures(), response.getItems().length);
+				// Flush BulkProcessor, just in case there are any pending
+				// requests
+				bulkProcessor.flush();
 			}
 		}
 	};
@@ -243,8 +246,7 @@ public class EsUtility {
 	}
 
 	/**
-	 * Push list of {@link SshIncident} to given index and type in
-	 * ElasticSearch
+	 * Push list of {@link SshIncident} to given index and type in ElasticSearch
 	 * 
 	 * @param list
 	 *            list of SshIncident
@@ -262,8 +264,7 @@ public class EsUtility {
 	}
 
 	/**
-	 * Push list of {@link SipIncident} to given index and type in
-	 * ElasticSearch
+	 * Push list of {@link SipIncident} to given index and type in ElasticSearch
 	 * 
 	 * @param list
 	 *            list of SipIncident
@@ -338,8 +339,7 @@ public class EsUtility {
 	}
 
 	/**
-	 * Push list of {@link WebIncident} to given index and type in
-	 * ElasticSearch
+	 * Push list of {@link WebIncident} to given index and type in ElasticSearch
 	 * 
 	 * @param list
 	 *            list of WebIncident
