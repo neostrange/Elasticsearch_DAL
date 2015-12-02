@@ -21,13 +21,30 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 /**
- * @author Waseem
+ * 
+ * The data access class contains logic for fetching Web data from
+ * relational DBs, normalizes and enriches the data, and creates
+ * {@link WebIncident} objects that can be indexed into ElasticSearch
  *
  */
 public class WebIncidentPopulator {
 
+	/**
+	 * The logger for the class
+	 */
 	private static Logger log = LoggerFactory.getLogger(WebIncidentPopulator.class);
 
+	/**
+	 * The function fetches Web data from the relational database and
+	 * adds it to be indexed to BulkProcessor
+	 * 
+	 * @param index
+	 *            the ElasticSearch index where the resultant document is to be
+	 *            stored
+	 * @param type
+	 *            the ElasticSearch type where the resultant document is to be
+	 *            stored
+	 */
 	public static void pushWebIncidents(String index, String type) {
 
 		log.info("Initiating WebIncident Population");
@@ -97,17 +114,19 @@ public class WebIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through web records ", e);
 		}
-
-		IOFileUtility.writeProperty("webTime", lastFetchTime, IOFileUtility.STATE_PATH);
+		// change time in state file only if there were any new incidents
+		if (count > 0)
+			IOFileUtility.writeProperty("webTime", lastFetchTime, IOFileUtility.STATE_PATH);
 		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
 		log.debug("Number of new web incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
 		log.info("WebIncident Population Successful");
 	}
 
 	/**
-	 * Function will populate Web Incidents objects
+	 * The function fetches Web data from the relational database and adds
+	 * it to a List to be returned
 	 * 
-	 * @return
+	 * @return list of {@link WebIncident}
 	 */
 	public List<WebIncident> populate() {
 

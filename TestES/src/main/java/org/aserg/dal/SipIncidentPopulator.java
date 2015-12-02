@@ -20,13 +20,30 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 /**
- * @author Waseem
+ * 
+ * The data access class contains logic for fetching SIP data from
+ * relational DBs, normalizes and enriches the data, and creates
+ * {@link SipIncident} objects that can be indexed into ElasticSearch
  *
  */
 public class SipIncidentPopulator {
 
+	/**
+	 * The logger for this class
+	 */
 	private static Logger log = LoggerFactory.getLogger(SipIncidentPopulator.class);
 
+	/**
+	 * The function fetches SIP data from the relational database and adds
+	 * it to be indexed to BulkProcessor
+	 * 
+	 * @param index
+	 *            the ElasticSearch index where the resultant document is to be
+	 *            stored
+	 * @param type
+	 *            the ElasticSearch type where the resultant document is to be
+	 *            stored
+	 */
 	public static void pushSipIncidents(String index, String type) {
 		log.info("Initiating SipIncident Population");
 		String lastFetchTime = IOFileUtility.readProperty("sipTime", IOFileUtility.STATE_PATH);
@@ -42,17 +59,14 @@ public class SipIncidentPopulator {
 		try {
 			while (rs.next()) {
 
-				if (rs.getString("remote_host").contains(":"))
-					remotehost = rs.getString("remote_host").split("f:")[1];
-				else
-					remotehost = rs.getString("remote_host");
-				
+				// Make sure dionaea doesn't tack on :ffff: before IP
+				// addresses (Split at "f:" and get the latter part of the
+				// address)
+				remotehost = rs.getString("remote_host");
+				remotehost = remotehost.contains(":") ? remotehost.split("f:")[1] : remotehost;
+				localhost = rs.getString("local_host");
+				localhost = localhost.contains(":") ? localhost.split("f:")[1] : localhost;
 
-				if (rs.getString("local_host").contains(":"))
-					localhost = rs.getString("local_host").split("f:")[1];
-				else
-					localhost = rs.getString("local_host");
-				
 				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				datetime = rs.getString("connection_datetime");
@@ -68,13 +82,22 @@ public class SipIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through sip records ", e);
 		}
-		log.debug("Number of new sip incidents [{}], since last fetched at [{}] ", count,
-				lastFetchTime);
-		IOFileUtility.writeProperty("sipTime", datetime, IOFileUtility.STATE_PATH);
+		// change time in state file only if there were any new incidents
+		if (count > 0)
+			IOFileUtility.writeProperty("sipTime", datetime, IOFileUtility.STATE_PATH);
+		
+		log.debug("Number of new sip incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
 		SqlUtility.closeDbInstances(SqlUtility.getSqliteConnection());
 		log.info("SipIncident Population Successful");
 	}
 
+	
+	/**
+	 * The function fetches SIP data from the relational database and adds
+	 * it to a List to be returned
+	 * 
+	 * @return list of {@link SipIncident}
+	 */
 	public List<SipIncident> populate() {
 		log.info("Initiating SipIncident Population");
 		List<SipIncident> sipIncidentList = new ArrayList<SipIncident>();
@@ -94,12 +117,12 @@ public class SipIncidentPopulator {
 					remotehost = rs.getString("remote_host").split("f:")[1];
 				else
 					remotehost = rs.getString("remote_host");
-				
+
 				if (rs.getString("local_host").contains(":"))
 					localhost = rs.getString("local_host").split("f:")[1];
 				else
 					localhost = rs.getString("local_host");
-				
+
 				org = EnrichmentUtility.getOrigin(remotehost);
 				org = org == null ? null : org;
 				datetime = rs.getString("connection_datetime");

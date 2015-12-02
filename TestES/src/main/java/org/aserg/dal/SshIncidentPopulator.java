@@ -18,10 +18,31 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
+/**
+ * 
+ * The data access class contains logic for fetching Ssh data from
+ * relational DBs, normalizes and enriches the data, and creates
+ * {@link SshIncident} objects that can be indexed into ElasticSearch
+ *
+ */
 public class SshIncidentPopulator {
 
+	/**
+	 * The logger for this class
+	 */
 	private static Logger log = LoggerFactory.getLogger(SshIncidentPopulator.class);
-	
+
+	/**
+	 * The function fetches SIP data from the relational database and adds
+	 * it to be indexed to BulkProcessor
+	 * 
+	 * @param index
+	 *            the ElasticSearch index where the resultant document is to be
+	 *            stored
+	 * @param type
+	 *            the ElasticSearch type where the resultant document is to be
+	 *            stored
+	 */
 	public static void pushSshIncidents(String index, String type) {
 		log.info("Initiating SshIncident Population");
 		SshIncident sshIncident = null;
@@ -34,18 +55,18 @@ public class SshIncidentPopulator {
 		Origin org = null;
 		int count = 0;
 		log.info("Run query to fetch ssh records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, 
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY,
 				SqlUtility.getMysqlConnection(IOFileUtility.readProperty("SSH_DB_NAME", IOFileUtility.ARCHIVAL_PATH),
-				IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH)),
+						IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH)),
 				lastFetchTime);
 		String prev = null;
 		String sensorIP = IOFileUtility.readProperty("SSH_HOST", IOFileUtility.ARCHIVAL_PATH);
 		boolean authenticated = false;
-		
+
 		try {
 			log.debug("SSH traversal started");
 			while (rs.next()) {
-				
+
 				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 				org = org == null ? null : org;
 				if (rs.getString("input_timestamp") != null) {
@@ -94,7 +115,8 @@ public class SshIncidentPopulator {
 					stime = rs.getString("connection_datetime");
 					etime = rs.getString("endtime") != null ? rs.getString("endtime").replace(' ', 'T') : null;
 					sshIncident = new SshIncident(stime.replace(' ', 'T'), rs.getString("remote_host"), 22, "sshd",
-							sensorIP, 22, "tcp", org, rs.getString("order_id"), null, etime, null, rs.getString("version"));
+							sensorIP, 22, "tcp", org, rs.getString("order_id"), null, etime, null,
+							rs.getString("version"));
 					// in case there are auth attempts
 					if (rs.getString("auth_timestamp") != null) {
 						auth = new Auth(rs.getString("username"), rs.getString("password"),
@@ -129,15 +151,20 @@ public class SshIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through ssh records ", e);
 		}
-		IOFileUtility.writeProperty("sshTime",stime,
-				IOFileUtility.STATE_PATH);
+		// change time in state file only if there were any new incidents
+		if (count > 0)
+			IOFileUtility.writeProperty("sshTime", stime, IOFileUtility.STATE_PATH);
 		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
-		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", count,
-				lastFetchTime);
+		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
 		log.info("SshIncident Population Successful");
 	}
 
-
+	/**
+	 * The function fetches SSH data from the relational database and adds
+	 * it to a List to be returned
+	 * 
+	 * @return list of {@link SshIncident}
+	 */
 	public List<SshIncident> populate() {
 		log.info("Initiating SshIncident Population");
 		SshIncident ssh = null;
@@ -150,18 +177,18 @@ public class SshIncidentPopulator {
 		String stime = null, etime = null;
 		Origin org = null;
 		log.info("Run query to fetch ssh records");
-		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY, 
+		ResultSet rs = SqlUtility.getResultSet(SqlUtility.SSH_INCIDENT_QUERY,
 				SqlUtility.getMysqlConnection(IOFileUtility.readProperty("SSH_DB_NAME", IOFileUtility.ARCHIVAL_PATH),
-				IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH)),
+						IOFileUtility.readProperty("SSH_PASSWORD", IOFileUtility.ARCHIVAL_PATH)),
 				lastFetchTime);
 		String prev = null;
 		String sensorIP = IOFileUtility.readProperty("HOST", IOFileUtility.ARCHIVAL_PATH);
 		boolean authenticated = false;
-		
+
 		try {
 			log.debug("SSH traversal started");
 			while (rs.next()) {
-				
+
 				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
 				org = org == null ? null : org;
 				if (rs.getString("input_timestamp") != null) {
@@ -208,8 +235,8 @@ public class SshIncidentPopulator {
 
 					stime = rs.getString("connection_datetime");
 					etime = rs.getString("endtime") != null ? rs.getString("endtime").replace(' ', 'T') : null;
-					ssh = new SshIncident(stime.replace(' ', 'T'), rs.getString("remote_host"), 22, "sshd",
-							sensorIP, 22, "tcp", org, rs.getString("order_id"), null, etime, null, rs.getString("version"));
+					ssh = new SshIncident(stime.replace(' ', 'T'), rs.getString("remote_host"), 22, "sshd", sensorIP,
+							22, "tcp", org, rs.getString("order_id"), null, etime, null, rs.getString("version"));
 					// in case there are auth attempts
 					if (rs.getString("auth_timestamp") != null) {
 						auth = new Auth(rs.getString("username"), rs.getString("password"),
@@ -243,8 +270,7 @@ public class SshIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through ssh records ", e);
 		}
-		IOFileUtility.writeProperty("sshTime",stime,
-				IOFileUtility.STATE_PATH);
+		IOFileUtility.writeProperty("sshTime", stime, IOFileUtility.STATE_PATH);
 		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
 		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", sshIncidentList.size(),
 				lastFetchTime);

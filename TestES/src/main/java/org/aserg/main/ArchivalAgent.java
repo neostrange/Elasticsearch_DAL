@@ -16,14 +16,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Waseem
+ * 
+ * This class contains the entry point (main) of the Archival Agent
  *
  */
 public class ArchivalAgent {
 
+	/**
+	 * The logger for this class
+	 */
 	private static Logger log = LoggerFactory.getLogger(ArchivalAgent.class);
-
-	private static final String BASE_PATH = System.getProperty("user.dir") + "/config/state.properties";
 
 	/**
 	 * @param args
@@ -33,7 +35,7 @@ public class ArchivalAgent {
 		log.info("Archival Agent Initialized");
 		EsUtility.initBulkProcessor();
 		while (true) {
-			if (IOFileUtility.readProperty("malwareState", BASE_PATH).equals("on")) {
+			if (IOFileUtility.readProperty("malwareState", IOFileUtility.STATE_PATH).equals("on")) {
 
 				log.warn("Malware State Property is [ON]");
 				MalwareIncidentPopulator.pushMalwareIncidents("incident", "MalwareIncident");
@@ -41,7 +43,7 @@ public class ArchivalAgent {
 			} else
 				log.warn("Malware State Property is [OFF]");
 
-			if (IOFileUtility.readProperty("mssqlState", BASE_PATH).equals("on")) {
+			if (IOFileUtility.readProperty("mssqlState", IOFileUtility.STATE_PATH).equals("on")) {
 
 				log.warn("Mssql State Property is [ON]");
 				MssqlIncidentPopulator.pushMssqlIncidents("incident", "MssqlIncident");
@@ -49,7 +51,7 @@ public class ArchivalAgent {
 			} else
 				log.warn("Mssql State Property is [OFF]");
 
-			if (IOFileUtility.readProperty("mysqlState", BASE_PATH).equals("on")) {
+			if (IOFileUtility.readProperty("mysqlState", IOFileUtility.STATE_PATH).equals("on")) {
 
 				log.warn("Mysql State Property is [ON]");
 				MysqlIncidentPopulator.pushMysqlIncidents("incident", "MysqlIncident");
@@ -57,7 +59,7 @@ public class ArchivalAgent {
 			} else
 				log.warn("Mssql State Property is [OFF]");
 
-			if (IOFileUtility.readProperty("sipState", BASE_PATH).equals("on")) {
+			if (IOFileUtility.readProperty("sipState", IOFileUtility.STATE_PATH).equals("on")) {
 
 				log.warn("Sip State Property is [ON]");
 				SipIncidentPopulator.pushSipIncidents("incident", "SipIncident");
@@ -65,7 +67,7 @@ public class ArchivalAgent {
 			} else
 				log.warn("Sip State Property is [OFF]");
 
-			if (IOFileUtility.readProperty("sshState", BASE_PATH).equals("on")) {
+			if (IOFileUtility.readProperty("sshState", IOFileUtility.STATE_PATH).equals("on")) {
 
 				log.warn("Ssh State Property is [ON]");
 				SshIncidentPopulator.pushSshIncidents("incident", "SshIncident");
@@ -73,7 +75,7 @@ public class ArchivalAgent {
 			} else
 				log.warn("Ssh State Property is [OFF]");
 
-			if (IOFileUtility.readProperty("sshMalwareState", BASE_PATH).equals("on")) {
+			if (IOFileUtility.readProperty("sshMalwareState", IOFileUtility.STATE_PATH).equals("on")) {
 
 				log.warn("Ssh Malware State Property is [ON]");
 				MalwareIncidentPopulator.pushSSHMalwareIncidents("incident", "MalwareIncident");
@@ -81,7 +83,7 @@ public class ArchivalAgent {
 			} else
 				log.warn("Ssh Malware State Property is [OFF]");
 
-			if (IOFileUtility.readProperty("webState", BASE_PATH).equals("on")) {
+			if (IOFileUtility.readProperty("webState", IOFileUtility.STATE_PATH).equals("on")) {
 
 				log.warn("Web State Property is [ON]");
 				WebIncidentPopulator.pushWebIncidents("incident", "WebIncident");
@@ -89,7 +91,7 @@ public class ArchivalAgent {
 			} else
 				log.warn("Web State Property is [OFF]");
 
-			if (IOFileUtility.readProperty("networkState", BASE_PATH).equals("on")) {
+			if (IOFileUtility.readProperty("networkState", IOFileUtility.STATE_PATH).equals("on")) {
 
 				log.warn("Network State Property is [ON]");
 				NetworkLayerIncidentPopulator.pushNetworkLayerIncidents("incident", "NetworkLayerIncident");

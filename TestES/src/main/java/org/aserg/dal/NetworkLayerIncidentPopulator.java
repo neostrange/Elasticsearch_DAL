@@ -20,13 +20,30 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 /**
- * @author Waseem
+ * 
+ * The data access class contains logic for fetching Network Layer data from
+ * relational DBs, normalizes and enriches the data, and creates
+ * {@link NetworkLayerIncident} objects that can be indexed into ElasticSearch
  *
  */
 public class NetworkLayerIncidentPopulator {
 
+	/**
+	 * The logger for this class
+	 */
 	private static Logger log = LoggerFactory.getLogger(MalwareIncidentPopulator.class);
 
+	/**
+	 * The function fetches Network Layer data from the relational database and
+	 * adds it to be indexed to BulkProcessor
+	 * 
+	 * @param index
+	 *            the ElasticSearch index where the resultant document is to be
+	 *            stored
+	 * @param type
+	 *            the ElasticSearch type where the resultant document is to be
+	 *            stored
+	 */
 	public static void pushNetworkLayerIncidents(String index, String type) {
 		log.info("Initiating NetworkLayerIncident Population");
 		String lastFetchTime = IOFileUtility.readProperty("networkTime", IOFileUtility.STATE_PATH);
@@ -82,11 +99,19 @@ public class NetworkLayerIncidentPopulator {
 		}
 
 		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
-		IOFileUtility.writeProperty("networkTime", lastFetchTime, IOFileUtility.STATE_PATH);
+		// change time in state file only if there were any new incidents
+		if (count > 0)
+			IOFileUtility.writeProperty("networkTime", lastFetchTime, IOFileUtility.STATE_PATH);
 		log.debug("Number of new network incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
 		log.info("NetworkLayerIncident Population Successful");
 	}
 
+	/**
+	 * The function fetches Network Layer data from the relational database and
+	 * adds it to a List to be returned
+	 * 
+	 * @return list of {@link NetworkLayerIncident}
+	 */
 	public List<NetworkLayerIncident> populate() {
 		log.info("Initiating NetworkLayerIncident Population");
 		List<NetworkLayerIncident> networkLayerIncidentList = new ArrayList<NetworkLayerIncident>();

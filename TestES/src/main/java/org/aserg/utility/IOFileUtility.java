@@ -14,17 +14,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Waseem This class is responsible to return the result set on the
- *         bases of time and write the time of the last result in the file
+ * This class is responsible for reading from and writing to the configuration
+ * properties file.
  *
  */
 public class IOFileUtility {
 
+	/**
+	 * This variable will provide the logging of the complete class
+	 */
 	private static Logger log = LoggerFactory.getLogger(IOFileUtility.class);
-	// static constants for properties file path
+	/**
+	 * Static constant for state properties file path
+	 */
 	public static final String STATE_PATH = System.getProperty("user.dir") + "/config/state.properties";
+	/**
+	 * Static constant for archival agent properties file path
+	 */
 	public static final String ARCHIVAL_PATH = System.getProperty("user.dir") + "/config/archivalAgent.properties";
+	/**
+	 * Static constant for elasticsearch properties file path
+	 */
+	public static final String ES_PATH = System.getProperty("user.dir") + "/config/es.properties";
 
+	/**
+	 * This function loads the properties into the memory and then updates the
+	 * specified property with given value, before writing back into properties
+	 * file
+	 * 
+	 * @param prop
+	 *            the property that needs to be updated
+	 * @param value
+	 *            the new value for the property
+	 * @param propFile
+	 *            the filename where this property needs to be changed
+	 */
 	public static void writeProperty(String prop, String value, String propFile) {
 		Properties p = new Properties(); // Will create a properties object for
 											// load and store
@@ -72,14 +96,23 @@ public class IOFileUtility {
 				}
 			}
 			log.info("Successfully written value [{}], to property [{}] ", value, prop);
-		}
-		else{
+		} else {
 			log.warn("Value to be written to property [{}] was NULL, so it remains unchanged.", prop);
 		}
 	}
 
-	public static String readProperty(String source, String propFile) {
-		log.debug("Read property [{}], from property file [{}]", source, propFile);
+	/**
+	 * This function reads the value of a certain property from a specified
+	 * property file
+	 * 
+	 * @param prop
+	 *            the property to be read
+	 * @param propFile
+	 *            the file path from where the property will be read
+	 * @return
+	 */
+	public static String readProperty(String prop, String propFile) {
+		log.debug("Read property [{}], from property file [{}]", prop, propFile);
 		BufferedReader br = null;
 		FileReader fileReader = null;
 		try {
@@ -98,7 +131,7 @@ public class IOFileUtility {
 			log.error("Error occurred while trying to read from property file [{}] ", propFile, e);
 		} finally {
 
-			if (br != null ) {
+			if (br != null) {
 				try {
 					fileReader.close();
 					br.close();
@@ -107,7 +140,7 @@ public class IOFileUtility {
 				}
 			}
 		}
-		return p.getProperty(source);
+		return p.getProperty(prop);
 	}
 
 }
