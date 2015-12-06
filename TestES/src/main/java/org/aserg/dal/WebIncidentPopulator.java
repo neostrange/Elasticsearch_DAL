@@ -81,8 +81,8 @@ public class WebIncidentPopulator {
 					ref = ref.isEmpty() ? null : ref;
 					lastFetchTime = rs.getString("connection_datetime");
 					webIncident = new WebIncident(lastFetchTime.replace(' ', 'T'), rs.getString("remote_host"),
-							rs.getInt("remote_port"), rs.getString("b_protocol"), rs.getString("local_host"),
-							rs.getInt("local_port"), "tcp", org, rs.getInt("f_content_length"),
+							rs.getInt("remote_port"), "web server", rs.getString("local_host"),
+							rs.getInt("local_port"), rs.getString("b_protocol"), org, rs.getInt("f_content_length"),
 							rs.getString("f_content_type"), rs.getString("b_method"), rs.getString("b_path_parameter"),
 							ref, null, rs.getInt("id_severity"), rs.getString("severity"),
 							rs.getString("b_user_agent"));

@@ -72,7 +72,6 @@ public class EnrichmentUtility {
 		log.info("Get origin, where source IP is [{}] ", srcIP);
 		try {
 			response = reader.city(InetAddress.getByName(srcIP));
-			loc = response.getLocation();
 		} catch (IOException e)
 		{
 			log.error("Error occurred while trying to read ", e);
@@ -82,6 +81,7 @@ public class EnrichmentUtility {
 					srcIP);
 		}
 		if (response != null) {
+			loc = response.getLocation();
 			String code3;
 			try {
 				code3 = new Locale("en", response.getCountry().getIsoCode()).getISO3Country();
@@ -100,11 +100,6 @@ public class EnrichmentUtility {
 				log.error("Error occurred while trying to convert string values to GeoPoint", e);
 			}
 		} 
-		// try {
-		// reader.close();
-		// } catch (IOException e) {
-		// log.error("Error occurred while trying to close Maxmind DB", e);
-		// }
 		return org;
 	}
 
