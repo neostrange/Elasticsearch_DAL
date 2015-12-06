@@ -186,7 +186,6 @@ public class SqlUtility {
 				sqliteConnection = DriverManager.getConnection(
 						IOFileUtility.readProperty("DATABASE_DIONAEA", IOFileUtility.ARCHIVAL_PATH),
 						"PRAGMA journal_mode=WAL", null);
-				// github.com/neostrange/Elasticsearch_DAL.git
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			if (e.getMessage().contains("BUSY"))
@@ -223,7 +222,7 @@ public class SqlUtility {
 
 			}
 		} catch (SQLException e) {
-			log.error("Error occurred while trying to get Kippo Connection ", e);
+			log.error("Error occurred while trying to get [{}] Connection ",database, e);
 		}
 		log.info("[{}] Connection Successfully Created", database);
 		return mysqlConnection;
@@ -241,17 +240,17 @@ public class SqlUtility {
 	 * @param con
 	 */
 	public static void closeDbInstances(Connection con) {
-		log.info("Trying to close Dionaea Connection...");
+		log.info("Trying to close Database Connection...");
 		if (con != null && preparedStatement != null && resultSet != null) {
 			try {
 				resultSet.close();
 				preparedStatement.close();
 				con.close();
 			} catch (SQLException e) {
-				log.error("Error occurred while trying to close Dionaea connection ", e);
+				log.error("Error occurred while trying to close Database connection ", e);
 			}
 		}
-		log.info("Dionaea Connection Closed");
+		log.info("Database Connection Closed");
 	}
 
 	/**

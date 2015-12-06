@@ -64,9 +64,9 @@ public class MysqlIncidentPopulator {
 				// Make sure dionaea doesn't tack on :ffff: before IP
 				// addresses (Split at "f:" and get the latter part of the
 				// address)
-				remotehost = rs.getString("remote_host");
+				remotehost = rs.getString("cmc.remote_host");
 				remotehost = remotehost.contains(":") ? remotehost.split("f:")[1] : remotehost;
-				localhost = rs.getString("local_host");
+				localhost = rs.getString("cmc.local_host");
 				localhost = localhost.contains(":") ? localhost.split("f:")[1] : localhost;
 
 				mysqlCommand = new MysqlCommand(rs.getString("mysql_command_args.mysql_command_arg_data"),
@@ -114,7 +114,7 @@ public class MysqlIncidentPopulator {
 		log.info("MysqlIncident Population Successful");
 		// change time in state file only if there were any new incidents
 		if (count > 0)
-			IOFileUtility.writeProperty("mysqlState", lastFetchTime, IOFileUtility.STATE_PATH);
+			IOFileUtility.writeProperty("mysqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
 	}
 
 	/**

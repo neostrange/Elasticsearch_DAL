@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.aserg.model.Origin;
 import org.aserg.model.WebIncident;
 import org.aserg.model.WebRule;
@@ -22,9 +21,9 @@ import com.google.gson.Gson;
 
 /**
  * 
- * The data access class contains logic for fetching Web data from
- * relational DBs, normalizes and enriches the data, and creates
- * {@link WebIncident} objects that can be indexed into ElasticSearch
+ * The data access class contains logic for fetching Web data from relational
+ * DBs, normalizes and enriches the data, and creates {@link WebIncident}
+ * objects that can be indexed into ElasticSearch
  *
  */
 public class WebIncidentPopulator {
@@ -35,8 +34,8 @@ public class WebIncidentPopulator {
 	private static Logger log = LoggerFactory.getLogger(WebIncidentPopulator.class);
 
 	/**
-	 * The function fetches Web data from the relational database and
-	 * adds it to be indexed to BulkProcessor
+	 * The function fetches Web data from the relational database and adds it to
+	 * be indexed to BulkProcessor
 	 * 
 	 * @param index
 	 *            the ElasticSearch index where the resultant document is to be
@@ -123,8 +122,8 @@ public class WebIncidentPopulator {
 	}
 
 	/**
-	 * The function fetches Web data from the relational database and adds
-	 * it to a List to be returned
+	 * The function fetches Web data from the relational database and adds it to
+	 * a List to be returned
 	 * 
 	 * @return list of {@link WebIncident}
 	 */

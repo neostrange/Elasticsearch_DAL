@@ -119,7 +119,6 @@ public class EsUtility {
 		 */
 		public void beforeBulk(long executionId, BulkRequest request) {
 			log.info("Bulk flush triggered [{}], where number of requests is ", executionId, request.numberOfActions());
-			System.out.println(new Gson().toJson(request.getContext()));
 		}
 
 		/**
@@ -212,9 +211,9 @@ public class EsUtility {
 		// check if ES nodes available
 		try {
 
-			if (client.listedNodes().size() > 0) {
-				log.info("Added doc into BulkProcessor index [{}], type [{}]", index, type);
+			if (client.listedNodes().size() > 0 && !doc.isEmpty()) {
 				bulkProcessor.add(new IndexRequest(index, type).source(doc));
+				log.info("Added doc into BulkProcessor index [{}], type [{}]", index, type);
 
 			} else {
 				log.warn("Couldn't find any available ElasticSearch nodes for pushing document");

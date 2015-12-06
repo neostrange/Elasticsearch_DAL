@@ -138,7 +138,7 @@ public class SshIncidentPopulator {
 						}
 					}
 				}
-
+				//For the last record
 				if (rs.isLast()) {
 					EsUtility.pushDocument(new Gson().toJson(sshIncident), index, type);
 					count++;
