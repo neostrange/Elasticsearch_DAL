@@ -66,15 +66,13 @@ public class SshIncidentPopulator {
 		try {
 			log.debug("SSH traversal started");
 			while (rs.next()) {
-
-				org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
-				org = org == null ? null : org;
+				// in case there is an input
 				if (rs.getString("input_timestamp") != null) {
 					input = new Input(rs.getString("input"),
 							Boolean.valueOf(rs.getInt("input_success") == 1 ? "true" : "false"),
 							rs.getString("input_timestamp").replace(' ', 'T'));
 				}
-
+				//in case the record is same as prev
 				if (rs.getString("order_id").equals(prev)) {
 					log.debug("SshIncident same as previous, session [{}] ", prev);
 					// if prev auth attempt in the session was successful
@@ -92,8 +90,10 @@ public class SshIncidentPopulator {
 						authenticated = Boolean.valueOf(rs.getInt("auth_success") == 1 ? "true" : "false");
 					}
 
-				} else {
-
+				} 
+				//in case of new record
+				else {
+					// add the prev record to Bulk
 					if (sshIncident != null) {
 						if (authList != null) {
 							sshIncident.setAuthList(authList);
@@ -112,6 +112,8 @@ public class SshIncidentPopulator {
 						authenticated = false;
 					}
 
+					org = EnrichmentUtility.getOrigin(rs.getString("remote_host"));
+					org = org == null ? null : org;
 					stime = rs.getString("connection_datetime");
 					etime = rs.getString("endtime") != null ? rs.getString("endtime").replace(' ', 'T') : null;
 					sshIncident = new SshIncident(stime.replace(' ', 'T'), rs.getString("remote_host"), 22, "sshd",
