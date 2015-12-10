@@ -102,8 +102,10 @@ public class NetworkLayerIncidentPopulator {
 		// change time in state file only if there were any new incidents
 		if (count > 0)
 			IOFileUtility.writeProperty("networkTime", lastFetchTime, IOFileUtility.STATE_PATH);
-		log.debug("Number of new network incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
-		log.info("NetworkLayerIncident Population Successful");
+		else{
+			log.debug("No new incidents added so time remains unchanged.");
+		}
+		log.info("Pushed [{}] new network incidents, since last fetched at [{}] ", count, lastFetchTime);
 	}
 
 	/**

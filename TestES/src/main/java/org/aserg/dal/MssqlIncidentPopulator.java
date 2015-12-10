@@ -77,12 +77,15 @@ public class MssqlIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mssql records", e);
 		}
-		log.debug("Number of new mssql incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
 		SqlUtility.closeDbInstances(SqlUtility.getSqliteConnection());
 		// change time in state file only if there were any new incidents
 		if (count > 0)
 			IOFileUtility.writeProperty("mssqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
-		log.info("MssqlIncident Population Successful");
+		else{
+			log.info("No new incidents added so time remains unchanged.");
+		}
+		log.info("[{}] new mssql incidents, since last fetched at [{}] ", count, lastFetchTime);
+
 	}
 
 	/**

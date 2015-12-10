@@ -82,13 +82,14 @@ public class SipIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through sip records ", e);
 		}
+		SqlUtility.closeDbInstances(SqlUtility.getSqliteConnection());
 		// change time in state file only if there were any new incidents
 		if (count > 0)
 			IOFileUtility.writeProperty("sipTime", datetime, IOFileUtility.STATE_PATH);
-		
-		log.debug("Number of new sip incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
-		SqlUtility.closeDbInstances(SqlUtility.getSqliteConnection());
-		log.info("SipIncident Population Successful");
+		else{
+			log.debug("No new incidents added so time remains unchanged.");
+		}		
+		log.info("Pushed [{}] new sip incidents, since last fetched at [{}] ", count, lastFetchTime);
 	}
 
 	

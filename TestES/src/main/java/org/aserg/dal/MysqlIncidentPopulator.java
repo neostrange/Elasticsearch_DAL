@@ -108,13 +108,15 @@ public class MysqlIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through mysql records", e);
 		}
-
 		SqlUtility.closeDbInstances(SqlUtility.getSqliteConnection());
-		log.debug("Number of new mysql incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
-		log.info("MysqlIncident Population Successful");
 		// change time in state file only if there were any new incidents
 		if (count > 0)
 			IOFileUtility.writeProperty("mysqlTime", lastFetchTime, IOFileUtility.STATE_PATH);
+		else{
+			log.debug("No new incidents added so time remains unchanged.");
+		}
+		log.info("Pushed [{}] new mysql incidents, since last fetched at [{}] ", count, lastFetchTime);
+
 	}
 
 	/**

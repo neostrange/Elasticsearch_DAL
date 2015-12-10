@@ -153,12 +153,14 @@ public class SshIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through ssh records ", e);
 		}
+		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
 		// change time in state file only if there were any new incidents
 		if (count > 0)
 			IOFileUtility.writeProperty("sshTime", stime, IOFileUtility.STATE_PATH);
-		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
-		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
-		log.info("SshIncident Population Successful");
+		else{
+			log.debug("No new incidents added so time remains unchanged.");
+		}
+		log.info("Pushed [{}] new ssh incidents, since last fetched at [{}] ", count, lastFetchTime);
 	}
 
 	/**
@@ -276,7 +278,6 @@ public class SshIncidentPopulator {
 		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
 		log.debug("Number of new ssh incidents [{}], since last fetched at [{}] ", sshIncidentList.size(),
 				lastFetchTime);
-		log.info("SshIncident Population Successful");
 		return sshIncidentList;
 	}
 

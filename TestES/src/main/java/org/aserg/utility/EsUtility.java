@@ -118,7 +118,7 @@ public class EsUtility {
 		 * Invoked just before the bulk process is initiated
 		 */
 		public void beforeBulk(long executionId, BulkRequest request) {
-			log.info("Bulk flush triggered [{}], where number of requests is ", executionId, request.numberOfActions());
+			log.info("Bulk flush triggered [{}], where number of requests is [{}]", executionId, request.numberOfActions());
 		}
 
 		/**

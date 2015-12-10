@@ -101,7 +101,7 @@ public class WebIncidentPopulator {
 					webRuleList.add(webRule);
 				}
 
-				// for last
+				// for the last record
 				if (rs.isLast()) {
 					EsUtility.pushDocument(new Gson().toJson(webIncident), index, type);
 					count++;
@@ -113,12 +113,14 @@ public class WebIncidentPopulator {
 		} catch (SQLException e) {
 			log.error("Error occurred while trying to traverse through web records ", e);
 		}
+		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
 		// change time in state file only if there were any new incidents
 		if (count > 0)
 			IOFileUtility.writeProperty("webTime", lastFetchTime, IOFileUtility.STATE_PATH);
-		SqlUtility.closeDbInstances(SqlUtility.mysqlConnection);
-		log.debug("Number of new web incidents [{}], since last fetched at [{}] ", count, lastFetchTime);
-		log.info("WebIncident Population Successful");
+		else{
+			log.debug("No new incidents added so time remains unchanged.");
+		}
+		log.info("Pushed [{}] new web incidents, since last fetched at [{}] ", count, lastFetchTime);
 	}
 
 	/**
